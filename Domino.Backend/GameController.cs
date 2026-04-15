@@ -10,7 +10,7 @@ public class GameController
     private IDeck _deck;
     private IGameRules _rules;
 
-    private Dictionary<IPlayer, List<DominoTile>> _playerHand;
+    private Dictionary<IPlayer, List<IDominoTile>> _playerHand;
     private Dictionary<IPlayer, int> _scores;
     private List<IPlayer> _players;
 
@@ -88,30 +88,17 @@ public class GameController
 
     private int GetPlayerBalakCount(IPlayer player)
     {
-        int counter = 0;
-        List<DominoTile> playerTile = _playerHand[player];
-        foreach (DominoTile tile in playerTile)
-        {
-            if (tile.Top == tile.Bottom) counter++;
-        }
-        return counter;
+        return _playerHand[player].Count(tile => tile.Top == tile.Bottom);
     }
 
     private IDominoTile GetSmallestBalak(IPlayer player)
     {
-        if (GetPlayerBalakCount(player) == 0)
-            return 0;
-        else
-        {
-            
-        }
-        List<DominoTile> playerTile = _playerHand[player];
-        
+        return _playerHand[player].MinBy(tile => tile.Top == tile.Bottom);
     }
 
     private IDominoTile GetHighestBalak(IPlayer player)
     {
-        
+        return _playerHand[player].MaxBy(tile => tile.Top == tile.Bottom);
     }
 
     private IPlayer FindFirstPlayer(bool isFirstRound)
