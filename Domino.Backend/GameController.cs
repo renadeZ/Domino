@@ -88,11 +88,24 @@ public class GameController
 
     private int GetPlayerBalakCount(IPlayer player)
     {
-        
+        int counter = 0;
+        List<DominoTile> playerTile = _playerHand[player];
+        foreach (DominoTile tile in playerTile)
+        {
+            if (tile.Top == tile.Bottom) counter++;
+        }
+        return counter;
     }
 
     private IDominoTile GetSmallestBalak(IPlayer player)
     {
+        if (GetPlayerBalakCount(player) == 0)
+            return 0;
+        else
+        {
+            
+        }
+        List<DominoTile> playerTile = _playerHand[player];
         
     }
 
