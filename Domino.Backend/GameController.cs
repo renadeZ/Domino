@@ -14,16 +14,17 @@ public class GameController : IGameController
     private Dictionary<IPlayer, int> _scores;
     private List<IPlayer> _players;
 
-    public int CurrentPlayerIndex { get; private set; }
+    private int _currentPlayerIndex;
     private int _roundNumber;
-    private int _consecutivePasses;
+    private int _passCount;
 
-    public event EventHandler<GameEventArgs>? OnTurnCompleted;
-    public event EventHandler<GameEventArgs>? OnRoundEnded;
-    public event EventHandler<GameEventArgs>? OnScoreUpdated;
-    public event EventHandler<GameEventArgs>? OnPenaltyApplied;
-    public event EventHandler<GameEventArgs> OnGameOver;
-
+    public GameDTO gameDto;
+    public event EventHandler TurnCompleted;
+    public event EventHandler OnRoundEnded;
+    public event EventHandler OnScoreUpdated;
+    public event EventHandler PenaltyApplied;
+    public event EventHandler GameOver;
+    
     public GameController(List<IPlayer> players, IBoard board, IDeck deck, IGameRules rules)
     {
         _players = players;
@@ -34,21 +35,26 @@ public class GameController : IGameController
 
     public void StartGame()
     {
-        //Setup skor dan hands
+        //Setup skor
         foreach (IPlayer player in _players)
-        {
-            _playerHand.Add(player, new List<IDominoTile>());
             _scores.Add(player, 0);
-        }
-        
         //Mengatur round
-        _roundNumber = 1;
+        _roundNumber = 0;
+    }
+
+    public void StartRound()
+    {
+        _roundNumber++;
+        _passCount = 0;
         
-        //Membagikan tile ke player
+        //Setup hands
+        foreach (IPlayer player in _players)
+            _playerHand.Add(player, new List<IDominoTile>());
         ShuffleAndDeal();
         
         //Cek Instan Winner
-        if(FindInstantWinner() != null) 
+        IPlayer? instantWinner = FindInstantWinner();
+        if(instantWinner != null) 
         {
             
         }
@@ -57,17 +63,7 @@ public class GameController : IGameController
         CheckReShuffle();
         
         //Mencari Pemain Pertama
-        CurrentPlayerIndex = _players.IndexOf(FindFirstPlayer(true));
-        
-        StartRound();
-    }
-
-    public void StartRound() //PlayerTurn
-    {
-  
-    }
-    private void NextTurn()
-    {
+        _currentPlayerIndex = _players.IndexOf(FindFirstPlayer(_roundNumber==1));
         
     }
 
@@ -75,24 +71,48 @@ public class GameController : IGameController
     {
         if (!IsGameOver())
         {
-            
+            if (tile.Top == _board.LeftEnd) 
+                _board.LeftEnd = tile.Bottom;
+            else if (tile.Top == _board.RightEnd)
+                _board.RightEnd = tile.Bottom;
+            else if (tile.Bottom == _board.LeftEnd)
+                _board.LeftEnd = tile.Top;
+            else if (tile.Bottom == _board.RightEnd)
+                _board.RightEnd = tile.Top;
+
+            _playerHand[player].Remove(tile);
         }
+    }
+    
+    private void NextTurn()
+    {
+        IsGameOver();
+        if (_currentPlayerIndex == _players.Count - 1) _currentPlayerIndex = 0;
+        else _currentPlayerIndex++;
     }
 
     public void Pass(IPlayer player)
     {
+        if (GetPlayableTiles(player).Count() == 0)
+        {
+            _passCount++;
+            NextTurn();
+        }
         
     }
 
     public void ApplyTimeOut(IPlayer player)
     {
+        _scores[player] += _rules.PenaltyPoints;
         
+        NextTurn();
     }
 
 
     private bool MatchesSide(IDominoTile tile, int value)
     {
-        
+        if (tile.Top == value || tile.Bottom == value) return true;
+        return false;
     }
     
     private void PlaceTile(IDominoTile tile, PlacementSide side)
@@ -127,8 +147,7 @@ public class GameController : IGameController
         List<IDominoTile> playable = new List<IDominoTile>();
         foreach (IDominoTile tile in _playerHand[player])
         {
-            if (tile.Top == _board.LeftEnd || tile.Top == _board.RightEnd || 
-                tile.Bottom == _board.LeftEnd || tile.Bottom == _board.RightEnd)
+            if (MatchesSide(tile, _board.LeftEnd) || MatchesSide(tile, _board.RightEnd))
             {
                 playable.Add(tile);
             }
@@ -229,7 +248,6 @@ public class GameController : IGameController
                     selectedPlayer = player;
                 }
             }
-
             return selectedPlayer;
         }
     }
@@ -272,7 +290,21 @@ public class GameController : IGameController
 
     private void HandleGaple()
     {
-        
+        //Titik terkecil
+        IPlayer leastPip = null;
+        List<int> playerPips = new List<int>();
+        foreach (IPlayer player in _players)
+        {
+            playerPips.Add(GetPlayerTotalPips(player));   
+        }
+        int minPip = playerPips.Min();
+
+        if (playerPips.FindAll(p => p == minPip).Count() > 1)
+        {
+            
+        }
+
+
     }
 
     private int GetRoundScore(RoundResult result)
@@ -287,6 +319,38 @@ public class GameController : IGameController
 
     public bool IsGameOver()
     {
-        
+        foreach (IPlayer player in _players)
+        {
+            if (_scores[player] >= 151)
+            {
+                OnGameOver();
+            }
+        }
+
+        return false;
+    }
+    
+    public void OnTurnCompleted()
+    {
+        gameDto = new GameDTO(_board, _deck, _rules, _playerHand, _scores, _players, _currentPlayerIndex,
+            _roundNumber, _passCount);
+        NextTurn();
+        TurnCompleted?.Invoke(this, EventArgs.Empty);
+    }
+
+    public void OnPenaltyApplied()
+    {
+        gameDto = new GameDTO(_board, _deck, _rules, _playerHand, _scores, _players, _currentPlayerIndex,
+            _roundNumber, _passCount);
+        NextTurn();
+        PenaltyApplied?.Invoke(this, EventArgs.Empty);
+    }
+
+    public void OnGameOver()
+    {
+        gameDto = new GameDTO(_board, _deck, _rules, _playerHand, _scores, _players, _currentPlayerIndex,
+            _roundNumber, _passCount);
+        NextTurn();
+        GameOver?.Invoke(this, EventArgs.Empty);
     }
 }
