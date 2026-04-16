@@ -20,8 +20,8 @@ public class GameController : IGameController
 
     public GameDTO gameDto;
     public event EventHandler TurnCompleted;
-    public event EventHandler OnRoundEnded;
-    public event EventHandler OnScoreUpdated;
+    public event EventHandler RoundEnded;
+    public event EventHandler ScoreUpdated;
     public event EventHandler PenaltyApplied;
     public event EventHandler GameOver;
     
@@ -31,6 +31,9 @@ public class GameController : IGameController
         _board = board;
         _deck = deck;
         _rules = rules;
+        
+        _playerHand = new Dictionary<IPlayer, List<IDominoTile>>();
+        _scores = new Dictionary<IPlayer, int>();
     }
 
     public void StartGame()
@@ -71,17 +74,19 @@ public class GameController : IGameController
     {
         if (!IsGameOver())
         {
-            if (tile.Top == _board.LeftEnd) 
-                _board.LeftEnd = tile.Bottom;
-            else if (tile.Top == _board.RightEnd)
-                _board.RightEnd = tile.Bottom;
-            else if (tile.Bottom == _board.LeftEnd)
-                _board.LeftEnd = tile.Top;
-            else if (tile.Bottom == _board.RightEnd)
-                _board.RightEnd = tile.Top;
-
+            //Ambil nilai sisi
+            int target = side == PlacementSide.Left ? _board.LeftEnd : _board.RightEnd;
+            if (tile.Top == target || tile.Bottom == target) PlaceTile(tile, side);
+            //Hapus karena sudah ditaruh
             _playerHand[player].Remove(tile);
         }
+    }
+    private void PlaceTile(IDominoTile tile, PlacementSide side)
+    {
+        if (side == PlacementSide.Left)
+            _board.LeftEnd = (tile.Top == _board.LeftEnd) ? tile.Bottom : tile.Top;
+        else
+            _board.RightEnd = (tile.Top == _board.RightEnd) ? tile.Bottom : tile.Top;
     }
     
     private void NextTurn()
@@ -115,10 +120,6 @@ public class GameController : IGameController
         return false;
     }
     
-    private void PlaceTile(IDominoTile tile, PlacementSide side)
-    {
-        
-    }
 
     private void ShuffleAndDeal()
     {
@@ -132,8 +133,8 @@ public class GameController : IGameController
         {
             foreach (IPlayer player in _players)
             {
-                _playerHand[player].Add(_deck.Tiles[_deck.Tiles.Count]);
-                _deck.Tiles.RemoveAt(_deck.Tiles.Count);
+                _playerHand[player].Add(_deck.Tiles[_deck.Tiles.Count-1]);
+                _deck.Tiles.RemoveAt(_deck.Tiles.Count-1);
                 _deck.TotalTiles--;
             }
         }
@@ -158,25 +159,12 @@ public class GameController : IGameController
 
     private int GetPlayerTotalPips(IPlayer player)
     {
-        int counter = 0;
-        foreach (IDominoTile tile in _playerHand[player])
-        {
-            counter += tile.Top + tile.Bottom;
-        }
-
-        return counter;
+        return _playerHand[player].Sum(tile => tile.Top + tile.Bottom);
     }
 
     private int GetPlayerBalakCount(IPlayer player)
     {
-        int counter = 0;
-        foreach (IDominoTile tile in _playerHand[player])
-        {
-            if (tile.Top == tile.Bottom)
-                counter++;
-        }
-        
-        return counter;
+        return _playerHand[player].Count(tile => tile.Top == tile.Bottom);
     }
 
     private IDominoTile GetSmallestBalak(IPlayer player)
@@ -250,6 +238,7 @@ public class GameController : IGameController
             }
             return selectedPlayer;
         }
+        
     }
 
     private void CheckReShuffle()
@@ -265,7 +254,7 @@ public class GameController : IGameController
                         counter++;
                 }
 
-                if (counter >= _rules.ReshuffleMinBalak)
+                if (counter >= _rules.ReshuffleMinBalak) //UNDONE : OnRoundEnded
                     OnGameOver?.Invoke(this, new GameEventArgs(player, RoundResult.ReShuffle, 0, "Game Restart"));
             }
         }
@@ -287,23 +276,41 @@ public class GameController : IGameController
 
         return null;
     }
-
+    
+    //UNDONE : Belom handling event/menyampaikan pemenang
     private void HandleGaple()
     {
+        IPlayer? winner = null;
+        
         //Titik terkecil
-        IPlayer leastPip = null;
-        List<int> playerPips = new List<int>();
+        List<int> playerTotalPips = new List<int>();
         foreach (IPlayer player in _players)
-        {
-            playerPips.Add(GetPlayerTotalPips(player));   
-        }
-        int minPip = playerPips.Min();
+            playerTotalPips.Add(GetPlayerTotalPips(player));   
+        
+        int minPip = playerTotalPips.Min();
+        int minCount = playerTotalPips.FindAll(p => p == minPip).Count();
 
-        if (playerPips.FindAll(p => p == minPip).Count() > 1)
-        {
-            
-        }
+        if ( minCount == 1)
+            winner = _players[playerTotalPips.Find(p => p == minPip)];
+        
+        //Tie Breaker
+        //A. Balak tersedikit
+        List<int> playerTotalBalak = new List<int>();
+        foreach (IPlayer player in _players)
+            playerTotalBalak.Add(GetPlayerBalakCount(player));
 
+        int minBalak = playerTotalBalak.Min();
+        minCount = playerTotalBalak.FindAll(p => p == minBalak).Count();
+
+        if (minCount == 1)
+            winner = _players[playerTotalBalak.Find((p => p == minBalak))];
+
+        //B. Balak terkecil
+        foreach( IPlayer player in _players)
+            if (winner == null)
+                winner = player;
+            else if (GetSmallestBalak(player).Top < GetSmallestBalak(winner).Top)
+                winner = player;
 
     }
 
@@ -323,7 +330,7 @@ public class GameController : IGameController
         {
             if (_scores[player] >= 151)
             {
-                OnGameOver();
+                return true;
             }
         }
 
