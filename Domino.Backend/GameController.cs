@@ -35,7 +35,8 @@ public class GameController : IGameController
         _playerHand = new Dictionary<IPlayer, List<IDominoTile>>();
         _scores = new Dictionary<IPlayer, int>();
     }
-
+    
+    //DONE
     public void StartGame()
     {
         //Setup skor
@@ -49,6 +50,9 @@ public class GameController : IGameController
     {
         _roundNumber++;
         _passCount = 0;
+        
+        //Setup deck
+        
         
         //Setup hands
         foreach (IPlayer player in _players)
@@ -91,7 +95,8 @@ public class GameController : IGameController
     
     private void NextTurn()
     {
-        IsGameOver();
+        
+        
         if (_currentPlayerIndex == _players.Count - 1) _currentPlayerIndex = 0;
         else _currentPlayerIndex++;
     }
@@ -113,14 +118,14 @@ public class GameController : IGameController
         NextTurn();
     }
 
-
+    //DONE
     private bool MatchesSide(IDominoTile tile, int value)
     {
         if (tile.Top == value || tile.Bottom == value) return true;
         return false;
     }
     
-
+    //DONE
     private void ShuffleAndDeal()
     {
         //Shuffle
@@ -140,6 +145,7 @@ public class GameController : IGameController
         }
     }
 
+    //DONE
     public List<IDominoTile> GetPlayableTiles(IPlayer player)
     {
         if (_deck.Tiles.Count == 0)
@@ -157,11 +163,13 @@ public class GameController : IGameController
         return playable;
     }
 
+    //DONE
     private int GetPlayerTotalPips(IPlayer player)
     {
         return _playerHand[player].Sum(tile => tile.Top + tile.Bottom);
     }
 
+    //DONE
     private int GetPlayerBalakCount(IPlayer player)
     {
         return _playerHand[player].Count(tile => tile.Top == tile.Bottom);
@@ -183,6 +191,7 @@ public class GameController : IGameController
             return _playerHand[player][min];
     }
 
+    //DONE
     private IDominoTile? GetHighestBalak(IPlayer player)
     {
         int max = -1;
