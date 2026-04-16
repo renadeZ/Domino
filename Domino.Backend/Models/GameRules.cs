@@ -1,6 +1,6 @@
 ﻿namespace Domino.Backend.Models;
 
-public class GameRules
+public class GameRules : IGameRules
 {
     public int WinningScore { get; set; }
     public int TurnTimeLimit { get; set; }
