@@ -4,7 +4,7 @@ using Domino.Backend.Models.EventArgs;
 
 namespace Domino.Backend;
 
-public class GameController : IGameController
+public class GameController
 {
     private IBoard _board;
     private IDeck _deck;
@@ -24,7 +24,7 @@ public class GameController : IGameController
     public event EventHandler ScoreUpdated; //Player, ScoreChange
     public event EventHandler PenaltyApplied;
     public event EventHandler GameOver;
-    
+
     public GameController(List<IPlayer> players, IBoard board, IDeck deck, IGameRules rules)
     {
         _players = players;

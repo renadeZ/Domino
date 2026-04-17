@@ -5,14 +5,14 @@ using Domino.Backend.Models.EventArgs;
 
 public class GameCLI
 {
-    private IGameController _gameController;
+    private GameController _gameController;
     private const int BOARD_WIDTH = 40;
     private const int BOARD_HEIGHT = 70;
     
     //Colors
 
 
-    public GameCLI(IGameController gameController)
+    public GameCLI(GameController gameController)
     {
         _gameController = gameController ?? throw new ArgumentNullException(nameof(gameController));
         Console.CursorVisible = false;
@@ -24,6 +24,17 @@ public class GameCLI
         try
         {
             ConsoleSetup();
+            
+            _gameController.StartGame();
+
+            int numOfPlayers = _gameController.DominoGameDto.Players.Count();
+            
+            _gameController.StartGame();
+            while (!_gameController.IsGameOver())
+            {
+                RoundStart();
+            }
+            
         }
         catch
         {
@@ -35,6 +46,16 @@ public class GameCLI
     {
         Console.Clear();
         Console.CursorVisible = false;
+    }
+
+    private void RoundStart()
+    {
+        
+    }
+
+
+    public void DrawerArena()
+    {
         
     }
 }
