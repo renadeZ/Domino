@@ -315,7 +315,7 @@ public class GameController : IGameController
         if (minCount == 1)
             winner = _players[playerTotalBalak.Find((p => p == minBalak))];
 
-        //B. Balak terkecil
+        //B. Balak terkecil 
         foreach( IPlayer player in _players)
             if (winner == null)
                 winner = player;
