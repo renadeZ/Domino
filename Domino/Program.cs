@@ -15,15 +15,7 @@ IBoard board = new Board(new List<DominoTile>(), 0, 0);
 
 //Deck
 List<IDominoTile> tiles = new List<IDominoTile>();
-for (int i = 0; i < 7; i++)
-{
-    for (int j = i; j < 7; j++)
-    {
-        tiles.Add(new DominoTile(i, j));
-    }
-}
-
-IDeck deck = new Deck(tiles, tiles.Count, 6);
+IDeck deck = new Deck(tiles, tiles.Count(), 6);
 
 //Game Rules
 IGameRules rules = new GameRules(

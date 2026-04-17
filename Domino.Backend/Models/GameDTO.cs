@@ -11,6 +11,7 @@ public class GameDTO : IGameDTO
     public int CurrentPlayerIndex { get; set; }
     public int RoundNumber { get; set; }
     public int PassCount { get; set; }
+    public IPlayer winningPlayer { get; set; }
 
     public GameDTO(IBoard board, IDeck deck, IGameRules rules, Dictionary<IPlayer, List<IDominoTile>> playerHands,
         Dictionary<IPlayer, int> scores, List<IPlayer> players, int currentPlayerIndex, int roundNumber, int passCount)

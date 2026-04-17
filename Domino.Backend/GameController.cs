@@ -20,8 +20,8 @@ public class GameController : IGameController
 
     public IGameDTO DominoGameDto;
     public event EventHandler TurnCompleted;
-    public event EventHandler RoundEnded;
-    public event EventHandler ScoreUpdated;
+    public event EventHandler RoundEnded; //Winner
+    public event EventHandler ScoreUpdated; //Player, ScoreChange
     public event EventHandler PenaltyApplied;
     public event EventHandler GameOver;
     
@@ -42,8 +42,13 @@ public class GameController : IGameController
         //Setup skor
         foreach (IPlayer player in _players)
             _scores.Add(player, 0);
+        
         //Mengatur round
         _roundNumber = 0;
+        
+        //Setup Hand
+        foreach (IPlayer player in _players)
+            _playerHand.Add(player, new List<IDominoTile>());
     }
 
     public void StartRound()
@@ -52,11 +57,24 @@ public class GameController : IGameController
         _passCount = 0;
         
         //Setup deck
-        
-        
+        if (_deck.Tiles.Count() != 0)
+        {
+            _deck.Tiles.Clear();
+            _deck.TotalTiles = 0;
+        }
+            
+        for (int i = 0; i < _deck.MaxPipValue + 1; i++)
+        {
+            for (int j = i; j < _deck.MaxPipValue + 1; j++)
+            {
+                _deck.Tiles.Add(new DominoTile(i, j));
+                _deck.TotalTiles++;
+            }
+        }
+
         //Setup hands
         foreach (IPlayer player in _players)
-            _playerHand.Add(player, new List<IDominoTile>());
+            _playerHand[player].Clear();
         ShuffleAndDeal();
         
         //Cek Instan Winner
