@@ -18,7 +18,7 @@ public class GameController : IGameController
     private int _roundNumber;
     private int _passCount;
 
-    public GameDTO gameDto;
+    public IGameDTO DominoGameDto;
     public event EventHandler TurnCompleted;
     public event EventHandler RoundEnded;
     public event EventHandler ScoreUpdated;
@@ -175,7 +175,8 @@ public class GameController : IGameController
         return _playerHand[player].Count(tile => tile.Top == tile.Bottom);
     }
 
-    private IDominoTile GetSmallestBalak(IPlayer player)
+    //DONE
+    private IDominoTile? GetSmallestBalak(IPlayer player)
     {
         int min = 12;
         for (int i = 0; i < _playerHand[player].Count(); i++)
@@ -345,27 +346,31 @@ public class GameController : IGameController
 
         return false;
     }
+
+    private IGameDTO UpdateDTO(IGameDTO dto)
+    {
+        dto = new GameDTO(_board, _deck, _rules, _playerHand, _scores, _players, _currentPlayerIndex,
+            _roundNumber, _passCount);
+        return dto;
+    }
     
     public void OnTurnCompleted()
     {
-        gameDto = new GameDTO(_board, _deck, _rules, _playerHand, _scores, _players, _currentPlayerIndex,
-            _roundNumber, _passCount);
+        DominoGameDto = UpdateDTO(DominoGameDto);
         NextTurn();
         TurnCompleted?.Invoke(this, EventArgs.Empty);
     }
 
     public void OnPenaltyApplied()
     {
-        gameDto = new GameDTO(_board, _deck, _rules, _playerHand, _scores, _players, _currentPlayerIndex,
-            _roundNumber, _passCount);
+        DominoGameDto = UpdateDTO(DominoGameDto);
         NextTurn();
         PenaltyApplied?.Invoke(this, EventArgs.Empty);
     }
 
     public void OnGameOver()
     {
-        gameDto = new GameDTO(_board, _deck, _rules, _playerHand, _scores, _players, _currentPlayerIndex,
-            _roundNumber, _passCount);
+        DominoGameDto = UpdateDTO(DominoGameDto);
         NextTurn();
         GameOver?.Invoke(this, EventArgs.Empty);
     }
