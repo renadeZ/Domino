@@ -20,7 +20,7 @@ public class GameController
 
     public IGameDTO DominoGameDto;
     public event EventHandler TurnCompleted;
-    public event EventHandler RoundEnded; //Winner
+    public event EventHandler<GameEventArgs> RoundEnded; //Winner
     public event EventHandler ScoreUpdated; //Player, ScoreChange
     public event EventHandler PenaltyApplied;
     public event EventHandler GameOver;
@@ -391,5 +391,11 @@ public class GameController
         DominoGameDto = UpdateDTO(DominoGameDto);
         NextTurn();
         GameOver?.Invoke(this, EventArgs.Empty);
+    }
+
+    public void OnRoundEnded(IPlayer winner, RoundResult result)
+    {
+        DominoGameDto = UpdateDTO(DominoGameDto);
+        RoundEnded?.Invoke(this, new GameEventArgs(winner, result, 0, ""));
     }
 }
