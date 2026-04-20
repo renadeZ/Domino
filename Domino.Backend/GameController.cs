@@ -345,8 +345,13 @@ public class GameController
         foreach( IPlayer player in _players)
             if (winner == null)
                 winner = player;
-            else if (GetSmallestBalak(player)!.Top < GetSmallestBalak(winner)!.Top)
-                winner = player;
+            else
+            {
+                var currentSmallest = GetSmallestBalak(player);
+                var winnerSmallest = GetSmallestBalak(winner);
+                if (currentSmallest != null && winnerSmallest != null && currentSmallest.Top < winnerSmallest.Top)
+                    winner = player;
+            }
 
     }
 

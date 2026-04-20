@@ -232,6 +232,9 @@ public class GameCli
         {
             Console.WriteLine($"  {player.Key.Name} : {player.Value} Point");
         }
+        Console.WriteLine("Press ENTER to continue...");
+        while (Console.ReadKey(true).Key != ConsoleKey.Enter) { }
+
     }
 }
 
