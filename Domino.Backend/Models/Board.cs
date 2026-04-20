@@ -2,11 +2,11 @@
 
 public class Board : IBoard
 {
-    public List<DominoTile> Chain { get; set; }
+    public List<IDominoTile> Chain { get; set; }
     public int LeftEnd { get; set; }
     public int RightEnd { get; set; }
 
-    public Board(List<DominoTile> chain, int leftEnd, int rightEnd)
+    public Board(List<IDominoTile> chain, int leftEnd, int rightEnd)
     {
         Chain = chain;
         LeftEnd = leftEnd;

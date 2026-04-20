@@ -81,7 +81,7 @@ public class GameController
         IPlayer? instantWinner = FindInstantWinner();
         if(instantWinner != null) 
         {
-            
+            OnRoundEnded(instantWinner, RoundResult.InstantWin);
         }
         
         //Check Reshuffle
@@ -101,14 +101,21 @@ public class GameController
             if (tile.Top == target || tile.Bottom == target) PlaceTile(tile, side);
             //Hapus karena sudah ditaruh
             _playerHand[player].Remove(tile);
+            OnTurnCompleted();
         }
     }
     private void PlaceTile(IDominoTile tile, PlacementSide side)
     {
         if (side == PlacementSide.Left)
+        {
             _board.LeftEnd = (tile.Top == _board.LeftEnd) ? tile.Bottom : tile.Top;
+            _board.Chain.Insert(0,tile);
+            }
         else
+        {
             _board.RightEnd = (tile.Top == _board.RightEnd) ? tile.Bottom : tile.Top;
+            _board.Chain.Add(tile);
+        }
     }
     
     private void NextTurn()
@@ -266,7 +273,8 @@ public class GameController
             }
             return selectedPlayer;
         }
-        
+        else 
+            return _players[_currentPlayerIndex];
     }
 
     private void CheckReShuffle()
@@ -337,7 +345,7 @@ public class GameController
         foreach( IPlayer player in _players)
             if (winner == null)
                 winner = player;
-            else if (GetSmallestBalak(player).Top < GetSmallestBalak(winner).Top)
+            else if (GetSmallestBalak(player)!.Top < GetSmallestBalak(winner)!.Top)
                 winner = player;
 
     }
@@ -377,6 +385,13 @@ public class GameController
         DominoGameDto = UpdateDTO(DominoGameDto);
         NextTurn();
         TurnCompleted?.Invoke(this, EventArgs.Empty);
+
+        bool stuck = true;
+        foreach (var player in _players)
+            if (GetPlayableTiles(player).Count > 0)
+                stuck = false;
+        if(stuck)
+            HandleGaple();
     }
 
     public void OnPenaltyApplied()
@@ -395,7 +410,25 @@ public class GameController
 
     public void OnRoundEnded(IPlayer winner, RoundResult result)
     {
-        DominoGameDto = UpdateDTO(DominoGameDto);
-        RoundEnded?.Invoke(this, new GameEventArgs(winner, result, 0, ""));
+        int score = 0;
+        switch (result)
+        {
+            case RoundResult.Win:
+                score += _rules.WinScore;
+                break;
+            case RoundResult.InstantWin:
+                score += _rules.WinScore;
+                break;
+        }
+
+        
+        DominoGameDto = UpdateDTO(DominoGameDto); 
+        RoundEnded?.Invoke(this, new GameEventArgs(winner, result, score, ""));
+    }
+
+    public void OnScoreUpdated(IPlayer player, int scoreChange)
+    {
+        _scores[player] += scoreChange;
+        ScoreUpdated?.Invoke(this, new GameEventArgs(player, 0, scoreChange, ""));
     }
 }

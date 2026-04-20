@@ -11,7 +11,7 @@ List<IPlayer> players = [player1, player2];
 
 
 //Board
-IBoard board = new Board(new List<DominoTile>(), 0, 0);
+IBoard board = new Board(new List<IDominoTile>(), 0, 0);
 
 //Deck
 List<IDominoTile> tiles = new List<IDominoTile>();

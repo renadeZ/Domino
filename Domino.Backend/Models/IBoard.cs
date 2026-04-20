@@ -2,7 +2,7 @@
 
 public interface IBoard
 {
-    public List<DominoTile> Chain { get; set; }
+    public List<IDominoTile> Chain { get; set; }
     public int LeftEnd { get; set; }
     public int RightEnd { get; set; }
 }
