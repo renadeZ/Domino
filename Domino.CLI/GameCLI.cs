@@ -27,6 +27,7 @@ public class GameCli
             ConsoleSetup();
 
             _gameController.RoundEnded += OnRoundEnded;
+            _gameController.TurnCompleted += OnTurnCompleted();
             _gameController.StartGame();
 
             while (!_gameController.IsGameOver())
@@ -68,6 +69,7 @@ public class GameCli
 
     private void DrawArena()
     {
+        ConsoleSetup();
         var currentPlayer = _gameController.DominoGameDto.Players[_gameController.DominoGameDto.CurrentPlayerIndex];
         Console.WriteLine("╔══════════════════════════════════════════════════════════╗");
         Console.WriteLine("║                           DOMINO                         ║");
@@ -220,8 +222,7 @@ public class GameCli
 
     private void OnRoundEnded(object? sender, GameEventArgs e)
     {
-        Console.Clear();
-        Console.ForegroundColor = ConsoleColor.Yellow;
+        ConsoleSetup();
         
         _roundLoop = false;
         Console.WriteLine("============ ROUND ENDED ===============");
