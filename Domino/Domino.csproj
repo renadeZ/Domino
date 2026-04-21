@@ -9,5 +9,6 @@
 
     <ItemGroup>
         <ProjectReference Include="..\Domino.Backend\Domino.Backend.csproj" />
+        <ProjectReference Include="..\Domino.CLI\Domino.CLI.csproj" />
     </ItemGroup>
 </Project>

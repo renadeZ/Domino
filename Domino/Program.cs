@@ -1,4 +1,4 @@
-﻿
+﻿using Domino.CLI;
 using Domino.Backend;
 using Domino.Backend.Models;
 using Domino.Backend.Models.Enums;
@@ -33,3 +33,7 @@ IGameRules rules = new GameRules(
     
 //Game Controller
 GameController gameController = new GameController(players, board, deck, rules);
+
+//Start Game UI
+DominoCli cli = new DominoCli(gameController);
+cli.RunGame();
