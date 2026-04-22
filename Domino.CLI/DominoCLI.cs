@@ -166,7 +166,11 @@ public class DominoCli
 
             var validSides = _gameController.GetValidPlacements(selected);
 
-            if (validSides.Count == 2) // Bisa ditaruh di kiri maupun kanan
+            if (_gameController.DominoGameDto.RoundNumber == 1 || validSides.Count == 1 )
+            {
+                _gameController.MakeMove(currentPlayer, selected, validSides[0]);
+            }
+            else if (validSides.Count == 2) // Bisa ditaruh di kiri maupun kanan
             {
                 Console.SetCursorPosition(0, Console.CursorTop - 3);
                 Console.WriteLine("Press 1, to play on Left, 2 to play on Right\n\n");
@@ -181,10 +185,6 @@ public class DominoCli
                     Console.WriteLine("Timeout, Time Limit Passed");
                     _gameController.ApplyTimeOut(currentPlayer);
                 }
-            }
-            else if (validSides.Count == 1) // Hanya bisa ditaruh di satu sisi, otomatis
-            {
-                _gameController.MakeMove(currentPlayer, selected, validSides[0]);
             }
         }
         else
