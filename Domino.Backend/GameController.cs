@@ -58,11 +58,12 @@ public class GameController
         _passCount = 0;
         
         //Setup deck
-        if (_deck.Tiles.Count() != 0)
+        if (_board.Chain.Count != 0)
         {
-            _deck.Tiles.Clear();
-            _deck.TotalTiles = 0;
+            _board.Chain.Clear();
         }
+        _deck.Tiles.Clear();
+        _deck.TotalTiles = 0;
             
         for (int i = 0; i < _deck.MaxPipValue + 1; i++)
         {
@@ -93,24 +94,36 @@ public class GameController
         DominoGameDto = UpdateDto(DominoGameDto);
     }
 
-    public void MakeMove(IPlayer player, IDominoTile tile, PlacementSide side)
+    public bool MakeMove(IPlayer player, IDominoTile tile, PlacementSide side)
     {
-        if (!IsGameOver())
+        if (IsGameOver()) return false;
+
+        bool isPlaced = false;
+
+        if (_board.Chain.Count == 0)
         {
-            if (_board.Chain.Count == 0)
+            PlaceTile(tile, side);
+            isPlaced = true;
+        }
+        else
+        {
+            int target = side == PlacementSide.Left ? _board.LeftEnd : _board.RightEnd;
+            if (tile.Top == target || tile.Bottom == target) 
             {
                 PlaceTile(tile, side);
+                isPlaced = true;
             }
-            else
-            {
-                //Ambil nilai sisi
-                int target = side == PlacementSide.Left ? _board.LeftEnd : _board.RightEnd;
-                if (tile.Top == target || tile.Bottom == target) PlaceTile(tile, side);
-            }
-            //Hapus karena sudah ditaruh
+        }
+
+        // Hanya hapus kartu dan ganti turn JIKA kartu BENAR-BENAR diletakkan
+        if (isPlaced)
+        {
             _playerHand[player].Remove(tile);
             OnTurnCompleted();
+            return true;
         }
+
+        return false; // Beritahu pemanggil (UI) bahwa langkah gagal
     }
     private void PlaceTile(IDominoTile tile, PlacementSide side)
     {
@@ -162,7 +175,7 @@ public class GameController
     {
         _scores[player] += _rules.PenaltyPoints;
         
-        NextTurn();
+        OnTurnCompleted();
     }
 
     //DONE
@@ -208,6 +221,32 @@ public class GameController
         }
 
         return playable;
+    }
+
+    public List<IDominoTile> GetUnplayableTiles(IPlayer player)
+    {
+        var playable = GetPlayableTiles(player);
+        return _playerHand[player].Except(playable).ToList();
+    }
+
+    public List<PlacementSide> GetValidPlacements(IDominoTile tile)
+    {
+        List<PlacementSide> validSides = new List<PlacementSide>();
+        
+        if (_board.Chain.Count == 0)
+        {
+            validSides.Add(PlacementSide.Left);
+            validSides.Add(PlacementSide.Right);
+            return validSides;
+        }
+
+        if (tile.Top == _board.LeftEnd || tile.Bottom == _board.LeftEnd)
+            validSides.Add(PlacementSide.Left);
+            
+        if (tile.Top == _board.RightEnd || tile.Bottom == _board.RightEnd)
+            validSides.Add(PlacementSide.Right);
+
+        return validSides;
     }
 
     //DONE
@@ -441,8 +480,6 @@ public class GameController
     
     public void OnTurnCompleted()
     {
-        DominoGameDto = UpdateDto(DominoGameDto);
-        TurnCompleted?.Invoke(this, EventArgs.Empty);
 
         //Check 0 Card
         foreach (IPlayer player in _players)
@@ -466,6 +503,8 @@ public class GameController
         }
         
         NextTurn();
+        DominoGameDto = UpdateDto(DominoGameDto);
+        TurnCompleted?.Invoke(this, EventArgs.Empty);
     }
 
     public void OnPenaltyApplied()
@@ -484,6 +523,8 @@ public class GameController
     public void OnRoundEnded(IPlayer winner, RoundResult result)
     {
         int score = 0;
+        string msg;
+        // int score = 0;
         switch (result)
         {
             case RoundResult.Win:
@@ -492,8 +533,13 @@ public class GameController
             case RoundResult.InstantWin:
                 score += _rules.WinScore;
                 break;
+            case RoundResult.WinBalak6:
+                score += _rules.WinBalak6Score;
+                break;
+            
         }
 
+        _scores[winner] += score;
         
         DominoGameDto = UpdateDto(DominoGameDto); 
         RoundEnded?.Invoke(this, new GameEventArgs(winner, result, score, ""));

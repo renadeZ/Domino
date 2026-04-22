@@ -7,7 +7,8 @@ using Domino.Backend.Models.EventArgs;
 //Players
 IPlayer player1 = new Player("Player 1");
 IPlayer player2 = new Player("Player 2");
-List<IPlayer> players = [player1, player2];
+IPlayer player3 = new Player("Player 3");
+List<IPlayer> players = [player1, player2, player3];
 
 
 //Board

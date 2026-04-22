@@ -9,9 +9,8 @@ namespace Domino.CLI;
 public class DominoCli
 {
     private GameController _gameController;
-    // private const int BOARD_WIDTH = 40;
-    // private const int BOARD_HEIGHT = 70;
-    private bool _roundLoop;
+    private bool _isRoundActive;
+    private bool _hasTimedOut;
     
     public DominoCli(GameController gameController)
     {
@@ -49,11 +48,12 @@ public class DominoCli
     }
     private void RoundStart()
     {
+        _isRoundActive = true; 
         _gameController.StartRound();
-
-        _roundLoop = true;
-        while (_roundLoop)
+        
+        while (_isRoundActive)
         {
+            _hasTimedOut = false;
             DrawArena();
             PlayerMove();
         }
@@ -73,28 +73,31 @@ public class DominoCli
     {
         ConsoleSetup();
         var currentPlayer = _gameController.DominoGameDto.Players[_gameController.DominoGameDto.CurrentPlayerIndex];
-        Console.WriteLine("╔══════════════════════════════════════════════════════════╗");
-        Console.WriteLine("║                           DOMINO                         ║");
-        Console.WriteLine("╚══════════════════════════════════════════════════════════╝\n");
-        Console.WriteLine($"Current Turn : {currentPlayer.Name}\n");
+        Console.WriteLine("╔════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╗");
+        Console.WriteLine("║                                                                                                                  DOMINO                                                                                                                ║");
+        Console.WriteLine("╚════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╝");
+        Console.WriteLine($"Current Round : {_gameController.DominoGameDto.RoundNumber}");
+        Console.WriteLine($"Current Turn  : {currentPlayer.Name}\n");
         Console.WriteLine("Player list :");
         foreach (var player in _gameController.DominoGameDto.PlayerHands)
             Console.WriteLine($"{player.Key.Name} : {_gameController.DominoGameDto.Scores[player.Key]} Point with {player.Value.Count()} Cards Remaining");
         
-        Console.WriteLine("\n========================= BOARD =============================\n");
+        Console.WriteLine("\n========================================================================================================== BOARD ================================================================================================================");
         DrawBoardCard();
-        Console.WriteLine("\n======================= YOUR CARD ============================\n");
+        Console.WriteLine(  "======================================================================================================== YOUR CARD ==============================================================================================================");
         Console.WriteLine("Playable Card : ");
         DrawPlayerCard(_gameController.GetPlayableTiles(currentPlayer), true);
-        Console.WriteLine("\nUnplayable Card : ");
-        List<IDominoTile> unplayable = _gameController.DominoGameDto.PlayerHands[currentPlayer].Except(_gameController.GetPlayableTiles(currentPlayer)).ToList();
+        Console.WriteLine("Unplayable Card : ");
+        List<IDominoTile> unplayable = _gameController.GetUnplayableTiles(currentPlayer);
         DrawPlayerCard(unplayable, false);
         
-        Console.WriteLine("Press 1-7 To Choose Tiles, Press 0 to Pass");
+        Console.WriteLine("Press 1-7 To Choose Tiles, Press 0 to Pass\n\n");
+        Console.WriteLine("30 Second Remaining");
     }
 
     private void DrawBoardCard()
     {
+        Console.ForegroundColor = ConsoleColor.Yellow;
         StringBuilder[] line = new StringBuilder[3];
         for (int i = 0; i < line.Length; i++)
         {
@@ -160,48 +163,33 @@ public class DominoCli
         else if (playerInput != null)
         {
             IDominoTile selected = playable[playerInput.Value.KeyChar - '1']; // fix index selection 1-7 maps to 0-6
-            Console.WriteLine("You Played");
-            if (_gameController.DominoGameDto.Board.Chain.Count() == 0)
+
+            var validSides = _gameController.GetValidPlacements(selected);
+
+            if (validSides.Count == 2) // Bisa ditaruh di kiri maupun kanan
             {
-                _gameController.MakeMove(currentPlayer, selected, PlacementSide.Left);
-            }
-            else
-            {
-                bool canPlayLeft = selected.Top == _gameController.DominoGameDto.Board.LeftEnd || selected.Bottom == _gameController.DominoGameDto.Board.LeftEnd;
-                bool canPlayRight = selected.Top == _gameController.DominoGameDto.Board.RightEnd || selected.Bottom == _gameController.DominoGameDto.Board.RightEnd;
+                Console.SetCursorPosition(0, Console.CursorTop - 3);
+                Console.WriteLine("Press 1, to play on Left, 2 to play on Right\n\n");
+                playerInput = WaitInput(2);
                 
-                if (canPlayLeft && canPlayRight)
-                {
-                    Console.WriteLine("Press 1, to play on Left, 2 to play on Right");
-                    playerInput = WaitInput(2);
-                    if (playerInput != null && playerInput.Value.KeyChar == '1')
-                    {
-                        _gameController.MakeMove(currentPlayer, selected, PlacementSide.Left);
-                    }
-                    else if (playerInput != null && playerInput.Value.KeyChar == '2') // Fix from '1' to '2'
-                    {
-                        _gameController.MakeMove(currentPlayer, selected, PlacementSide.Right);
-                    }
-                    else
-                    {
-                        Console.WriteLine("Timeout, Time Limit Passed");
-                        _gameController.ApplyTimeOut(currentPlayer);
-                    }
-                    
-                }
-                else if (canPlayLeft)
-                {
+                if (playerInput != null && playerInput.Value.KeyChar == '1')
                     _gameController.MakeMove(currentPlayer, selected, PlacementSide.Left);
-                }
-                else if (canPlayRight)
-                {
+                else if (playerInput != null && playerInput.Value.KeyChar == '2')
                     _gameController.MakeMove(currentPlayer, selected, PlacementSide.Right);
+                else
+                {
+                    Console.WriteLine("Timeout, Time Limit Passed");
+                    _gameController.ApplyTimeOut(currentPlayer);
                 }
+            }
+            else if (validSides.Count == 1) // Hanya bisa ditaruh di satu sisi, otomatis
+            {
+                _gameController.MakeMove(currentPlayer, selected, validSides[0]);
             }
         }
         else
         {
-            Console.WriteLine("Timeout, Time Limit Passed");
+            _hasTimedOut = true;
             _gameController.ApplyTimeOut(currentPlayer);
         }
         
@@ -216,7 +204,7 @@ public class DominoCli
         return input;
     }
 
-    private ConsoleKeyInfo? WaitInput(int validPlay)
+    private ConsoleKeyInfo? WaitInput(int validPlayCount)
     {
         Stopwatch timer = new Stopwatch();
         timer.Start();
@@ -225,16 +213,20 @@ public class DominoCli
             if (Console.KeyAvailable)
             {
                 ConsoleKeyInfo keyInfo = Console.ReadKey(intercept: true);
-                if (validPlay != 0)
+                if (validPlayCount != 0)
                 {
-                    for (int i = 1; i <= validPlay; i++)
+                    for (int i = 1; i <= validPlayCount; i++)
                         if (keyInfo.KeyChar == (char)(i + '0'))
                             return keyInfo;
                 }
                 else if (keyInfo.KeyChar == '0')
                     return keyInfo;
             }
-
+            
+            Console.SetCursorPosition(0, Console.CursorTop - 1);
+            Console.WriteLine("  ");
+            Console.SetCursorPosition(0, Console.CursorTop - 1);
+            Console.WriteLine(_gameController.DominoGameDto.Rules.TurnTimeLimit - (int)timer.Elapsed.TotalSeconds);
             Thread.Sleep(50);
         }
 
@@ -244,7 +236,14 @@ public class DominoCli
     private void OnTurnCompleted(object? sender, EventArgs e)
     {
         ConsoleSetup();
-        Console.WriteLine("Your turn completed");
+        if (_hasTimedOut)
+        {
+            Console.WriteLine("Time Limit Passed, You Get Penalty");
+        }
+        else
+        {
+            Console.WriteLine("Your turn completed");
+        }
         Console.WriteLine($"Next turn : {_gameController.DominoGameDto.Players[_gameController.DominoGameDto.CurrentPlayerIndex].Name}");
         Console.WriteLine("Press ENTER to continue...");
         while (Console.ReadKey(true).Key != ConsoleKey.Enter) { }
@@ -254,14 +253,16 @@ public class DominoCli
     {
         ConsoleSetup();
         
-        _roundLoop = false;
+        _isRoundActive = false;
         Console.WriteLine("============ ROUND ENDED ===============");
         if (e.Result == RoundResult.ReShuffle)
         {
-            Console.WriteLine($"Reshuffle, {e.Player} has {_gameController.DominoGameDto.PlayerHands[e.Player].Count()} card");
+            Console.WriteLine($"Reshuffle, {e.Player.Name} has {_gameController.DominoGameDto.PlayerHands[e.Player].Count()} cards");
         }
         else
         {
+            Console.WriteLine("Board :");
+            DrawBoardCard();
             foreach (IPlayer player in _gameController.DominoGameDto.Players)
             {
                 Console.WriteLine($"{player.Name}'s Card : {_gameController.DominoGameDto.PlayerHands[player].Count()} left");
