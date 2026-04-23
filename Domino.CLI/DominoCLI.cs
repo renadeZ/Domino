@@ -286,7 +286,7 @@ public class DominoCli
 
             Console.ForegroundColor = ConsoleColor.Yellow;
             Console.WriteLine($"Round Winner : {e.Player.Name}");
-            Console.WriteLine($"Win By       : {e.Result.ToString()} (+{e.ScoreChange} point)");
+            Console.WriteLine($"Win By       : {e.Message.ToString()} (+{e.ScoreChange} point)");
         }
         Console.WriteLine($"Player List  :");
         foreach (var player in _gameController.DominoGameDto.Scores)
