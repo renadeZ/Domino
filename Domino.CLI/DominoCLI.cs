@@ -10,6 +10,7 @@ public class DominoCli
 {
     private GameController _gameController;
     private bool _isRoundActive;
+    private bool _isFirstTurn;
     private bool _hasTimedOut;
     
     public DominoCli(GameController gameController)
@@ -37,18 +38,17 @@ public class DominoCli
             }
 
         }
-        // catch
-        // {
-        //
-        // }
         finally
         {
             _gameController.RoundEnded -= OnRoundEnded;
+            _gameController.TurnCompleted -= OnTurnCompleted;
+            _gameController.GameOver -= OnGameOver;
         }
     }
     private void RoundStart()
     {
-        _isRoundActive = true; 
+        _isRoundActive = true;
+        _isFirstTurn = true;
         _gameController.StartRound();
         
         while (_isRoundActive)
@@ -56,6 +56,7 @@ public class DominoCli
             _hasTimedOut = false;
             DrawArena();
             PlayerMove();
+            _isFirstTurn = false;
         }
         
     }
@@ -91,14 +92,14 @@ public class DominoCli
         List<IDominoTile> unplayable = _gameController.GetUnplayableTiles(currentPlayer);
         DrawPlayerCard(unplayable, false);
         
-        Console.WriteLine("Press 1-7 To Choose Tiles, Press 0 to Pass\n\n");
+        Console.WriteLine($"Press 1-{_gameController.GetPlayableTiles(currentPlayer).Count} To Choose Tiles, Press 0 to Pass\n\n");
         Console.WriteLine("30 Second Remaining");
     }
 
     private void DrawBoardCard()
     {
         Console.ForegroundColor = ConsoleColor.Yellow;
-        StringBuilder[] line = new StringBuilder[3];
+        StringBuilder[] line = new StringBuilder[5];
         for (int i = 0; i < line.Length; i++)
         {
             line[i] = new StringBuilder();
@@ -108,9 +109,22 @@ public class DominoCli
         {
             foreach (var tile in _gameController.DominoGameDto.Board.Chain)
             {
-                line[0].Append($"┌───────┐ ");
-                line[1].Append($"│ {tile.Top} | {tile.Bottom} │ ");
-                line[2].Append("└───────┘ ");
+                if (tile.Top == tile.Bottom)
+                {
+                    line[0].Append("┌────┐ ");
+                    line[1].Append($"│ {tile.Top}  │ ");
+                    line[2].Append($"├────┤ ");
+                    line[3].Append($"│ {tile.Bottom}  │ ");
+                    line[4].Append("└────┘ ");
+                }
+                else
+                {
+                    line[0].Append("          ");
+                    line[1].Append($"┌───────┐ ");
+                    line[2].Append($"│ {tile.Top} | {tile.Bottom} │ ");
+                    line[3].Append("└───────┘ ");
+                    line[4].Append("          ");
+                }
             }
 
             foreach(var str in line)
@@ -162,15 +176,15 @@ public class DominoCli
         }
         else if (playerInput != null)
         {
-            IDominoTile selected = playable[playerInput.Value.KeyChar - '1']; // fix index selection 1-7 maps to 0-6
+            IDominoTile selected = playable[playerInput.Value.KeyChar - '1']; 
 
             var validSides = _gameController.GetValidPlacements(selected);
 
-            if (_gameController.DominoGameDto.RoundNumber == 1 || validSides.Count == 1 )
+            if ( _isFirstTurn || validSides.Count == 1 )
             {
                 _gameController.MakeMove(currentPlayer, selected, validSides[0]);
             }
-            else if (validSides.Count == 2) // Bisa ditaruh di kiri maupun kanan
+            else if (validSides.Count == 2) 
             {
                 Console.SetCursorPosition(0, Console.CursorTop - 3);
                 Console.WriteLine("Press 1, to play on Left, 2 to play on Right\n\n");
@@ -284,10 +298,19 @@ public class DominoCli
 
     }
 
-    public void OnGameOver(object? sender, EventArgs e)
+    public void OnGameOver(object? sender, GameEventArgs e)
     {
         ConsoleSetup();
-        Console.WriteLine("Game Over");
+        Console.WriteLine("\n========================= Game Over =========================");
+        Console.WriteLine($"Game Winner : {e.Player.Name}");
+        Console.WriteLine("Final Score  :");
+        var sortedScores = _gameController.DominoGameDto.Scores.OrderByDescending(x => x.Value);
+        foreach (var score in sortedScores)
+        {
+            Console.WriteLine($"  {score.Key.Name} : {score.Value} Point");
+        }
+        // Console.WriteLine("\nPress ENTER to exit...");
+        // while (Console.ReadKey(true).Key != ConsoleKey.Enter) { }
     }
-    
+
 }
