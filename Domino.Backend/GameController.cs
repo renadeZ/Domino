@@ -79,7 +79,7 @@ public class GameController
         ShuffleAndDeal();
         
         //[TEST]
-        // TestHand(1);
+        TestHand(4);
 
         //Cek Instant Winner
         IPlayer? instantWinner = FindInstantWinner();
@@ -116,12 +116,45 @@ public class GameController
                 _playerHand[_players[0]].Clear();
                 _playerHand[_players[0]].Add(new DominoTile(1, 1));
                 _playerHand[_players[0]].Add(new DominoTile(1, 1));
-                _playerHand[_players[0]].Add(new DominoTile(1, 1));
                 
                 _playerHand[_players[1]].Clear();
                 _playerHand[_players[1]].Add(new DominoTile(0, 0));
                 _playerHand[_players[1]].Add(new DominoTile(5, 5));
                 _playerHand[_players[1]].Add(new DominoTile(6, 6));
+                break;
+            
+            case 3:
+                _playerHand[_players[0]].Clear();
+                _playerHand[_players[0]].Add(new DominoTile(1, 2));
+                _playerHand[_players[0]].Add(new DominoTile(1, 2));
+                _playerHand[_players[0]].Add(new DominoTile(1, 2));
+                _playerHand[_players[0]].Add(new DominoTile(1, 2));
+                _playerHand[_players[0]].Add(new DominoTile(1, 2));
+                _playerHand[_players[0]].Add(new DominoTile(1, 2));
+                _playerHand[_players[0]].Add(new DominoTile(1, 2));
+                
+                _playerHand[_players[1]].Clear();
+                _playerHand[_players[1]].Add(new DominoTile(1, 2));
+                _playerHand[_players[1]].Add(new DominoTile(1, 2));
+                _playerHand[_players[1]].Add(new DominoTile(1, 2));
+                _playerHand[_players[1]].Add(new DominoTile(1, 2));
+                _playerHand[_players[1]].Add(new DominoTile(1, 2));
+                _playerHand[_players[1]].Add(new DominoTile(1, 2));
+                _playerHand[_players[1]].Add(new DominoTile(1, 2));
+                _playerHand[_players[1]].Add(new DominoTile(1, 2));
+                break;
+            
+            case 4 :
+                _playerHand[_players[0]].Clear();
+                _playerHand[_players[0]].Add(new DominoTile(1, 2));
+                _playerHand[_players[0]].Add(new DominoTile(1, 2));
+                _playerHand[_players[0]].Add(new DominoTile(1, 6));
+                _playerHand[_players[0]].Add(new DominoTile(6, 6));
+                
+                _playerHand[_players[1]].Clear();
+                _playerHand[_players[1]].Add(new DominoTile(0, 0));
+                // _playerHand[_players[1]].Add(new DominoTile(0, 0));
+                // _playerHand[_players[1]].Add(new DominoTile(0, 0));
                 break;
         }
     }
