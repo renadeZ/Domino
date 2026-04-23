@@ -41,7 +41,9 @@ public class GameController
     {
         //Setup skor
         foreach (IPlayer player in _players)
+        {
             _scores.Add(player, 0);
+        }
         
         //Mengatur round
         _roundNumber = 0;
@@ -75,7 +77,9 @@ public class GameController
 
         //Setup hands
         foreach (IPlayer player in _players)
+        {
             _playerHand[player].Clear();
+        }
         ShuffleAndDeal();
         
         //[TEST]
@@ -161,8 +165,10 @@ public class GameController
     
     public bool MakeMove(IPlayer player, IDominoTile tile, PlacementSide side)
     {
-        if (IsGameOver()) 
+        if (IsGameOver())
+        {
             return false;
+        }
 
         bool isPlaced = false;
 
