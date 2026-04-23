@@ -1,0 +1,60 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <base href="/"/>
+    <link rel="stylesheet" href="bootstrap/bootstrap.min.css"/>
+    <link rel="stylesheet" href="app.css"/>
+    <link rel="stylesheet" href="Domino.GUI.styles.css"/>
+    <link rel="icon" type="image/png" href="favicon.png"/>
+    <HeadOutlet/>
+</head>
+
+<body>
+<Routes/>
+<script src="_framework/blazor.web.js"></script>
+<script>
+window.layoutDominoes = function () {
+    const board = document.querySelector('.domino-board');
+    if (!board) return;
+    
+    // We will clean up any absolute styling and just let flexbox do its job, since the user doesn't want the complex snake wrapping.
+    const cards = Array.from(board.querySelectorAll('.domino-card'));
+    if (cards.length === 0) {
+        board.style.height = 'auto';
+        board.style.minHeight = '400px';
+        return;
+    }
+
+    // Reset styles back to flex layout
+    board.style.position = '';
+    board.style.display = 'flex';
+    board.style.height = 'auto';
+    board.style.minHeight = '400px';
+
+    for (let i = 0; i < cards.length; i++) {
+        let card = cards[i];
+        card.style.position = 'relative';
+        card.style.margin = '';
+        card.style.left = '';
+        card.style.top = '';
+        card.style.transform = '';
+        
+        let isBalak = card.getAttribute('data-is-balak') === 'true';
+        
+        // Restore horizontal/vertical correctly
+        if (isBalak) {
+            card.classList.remove('horizontal');
+        } else {
+            card.classList.add('horizontal');
+        }
+    }
+};
+
+window.addEventListener('resize', window.layoutDominoes);
+</script>
+</body>
+
+</html>

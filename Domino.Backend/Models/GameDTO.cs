@@ -1,6 +1,6 @@
 ﻿namespace Domino.Backend.Models;
 
-public class GameDTO : IGameDTO
+public class GameDto : IGameDTO
 {
     public IBoard Board { get; set; }
     public IDeck Deck { get; set; }
@@ -13,7 +13,7 @@ public class GameDTO : IGameDTO
     public int PassCount { get; set; }
     public IPlayer winningPlayer { get; set; }
 
-    public GameDTO(IBoard board, IDeck deck, IGameRules rules, Dictionary<IPlayer, List<IDominoTile>> playerHands,
+    public GameDto(IBoard board, IDeck deck, IGameRules rules, Dictionary<IPlayer, List<IDominoTile>> playerHands,
         Dictionary<IPlayer, int> scores, List<IPlayer> players, int currentPlayerIndex, int roundNumber, int passCount)
     {
         Board = board;

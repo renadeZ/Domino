@@ -6,6 +6,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Domino.Backend", "Domino.Ba
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Domino.CLI", "Domino.CLI\Domino.CLI.csproj", "{70921F44-B147-4BDC-8BC5-7D783F05B781}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Domino.GUI", "Domino.GUI\Domino.GUI.csproj", "{03788500-7A57-4EF4-B199-1122D707AAF9}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -24,5 +26,9 @@ Global
 		{70921F44-B147-4BDC-8BC5-7D783F05B781}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{70921F44-B147-4BDC-8BC5-7D783F05B781}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{70921F44-B147-4BDC-8BC5-7D783F05B781}.Release|Any CPU.Build.0 = Release|Any CPU
+		{03788500-7A57-4EF4-B199-1122D707AAF9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{03788500-7A57-4EF4-B199-1122D707AAF9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{03788500-7A57-4EF4-B199-1122D707AAF9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{03788500-7A57-4EF4-B199-1122D707AAF9}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

@@ -8,6 +8,7 @@ public enum RoundResult
     Draw,
     DrawWinBalak0,
     DrawLoseBalak0,
+    DrawWinNormal,
     InstantWin,
     ReShuffle
 }
