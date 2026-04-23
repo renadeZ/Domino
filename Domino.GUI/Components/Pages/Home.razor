@@ -1,0 +1,302 @@
+﻿@page "/"
+@rendermode InteractiveServer
+@using Domino.Backend
+@using Domino.Backend.Models
+@using Domino.Backend.Models.Enums
+@using Domino.Backend.Models.EventArgs
+@inject GameController Controller
+@implements IDisposable
+
+<PageTitle>Domino Gaple</PageTitle>
+
+@if (!isGameStarted)
+{
+    <div style="text-align: center; margin-top: 50px;">
+        <h1>Domino Gaple</h1>
+        <button class="btn btn-primary" @onclick="StartGame">Start Game</button>
+    </div>
+}
+else if (isGameOver)
+{
+    <div class="modal-overlay">
+        <div class="modal-content">
+            <h2>Game Over!</h2>
+            <h3>Winner: @gameWinner</h3>
+            <div style="text-align: left; margin: 20px;">
+                @foreach (var score in Controller.DominoGameDto.Scores.OrderByDescending(x => x.Value))
+                {
+                    <p>@score.Key.Name : @score.Value Points</p>
+                }
+            </div>
+            <button @onclick="RestartGame">Play Again</button>
+        </div>
+    </div>
+}
+else
+{
+    <div class="game-container" style="max-width: 1000px; margin: 0 auto;">
+        
+        <!-- Header / Info -->
+        <div style="display: flex; justify-content: space-between; align-items: center; background: #34495e; color: white; padding: 10px 20px; border-radius: 10px; margin-bottom: 20px;">
+            <div>
+                <h3>Round: @Controller.DominoGameDto.RoundNumber</h3>
+                <h4>Current Turn: @CurrentPlayer.Name</h4>
+            </div>
+            <div style="text-align: right;">
+                @foreach (var player in Controller.DominoGameDto.PlayerHands)
+                {
+                    <div>@player.Key.Name : @Controller.DominoGameDto.Scores[player.Key] Pts | @player.Value.Count() Cards</div>
+                }
+            </div>
+        </div>
+
+        <!-- Board -->
+        <div class="domino-board">
+            @if (Controller.DominoGameDto.Board.Chain.Count == 0)
+            {
+                <h3 style="color: white; opacity: 0.5;">Board is empty</h3>
+            }
+            else
+            {
+                @foreach (var tile in Controller.DominoGameDto.Board.Chain)
+                {
+                    <div class="domino-card @(tile.Top == tile.Bottom ? "" : "horizontal")">
+                        <div class="domino-half val-@tile.Top">
+                            @for (int i = 0; i < tile.Top; i++)
+                            {
+                                <div class="dot"></div>
+                            }
+                        </div>
+                        <div class="domino-half val-@tile.Bottom">
+                            @for (int i = 0; i < tile.Bottom; i++)
+                            {
+                                <div class="dot"></div>
+                            }
+                        </div>
+                    </div>
+                }
+            }
+        </div>
+
+        <!-- Player Hand -->
+        <div style="margin-top: 30px;">
+            <h3>Your Hand (@CurrentPlayer.Name)</h3>
+            <div class="player-hand">
+                @foreach (var tile in PlayableTiles)
+                {
+                    <div class="domino-card" @onclick="() => SelectTile(tile)">
+                        <div class="domino-half val-@tile.Top">
+                            @for (int i = 0; i < tile.Top; i++)
+                            {
+                                <div class="dot"></div>
+                            }
+                        </div>
+                        <div class="domino-half val-@tile.Bottom">
+                            @for (int i = 0; i < tile.Bottom; i++)
+                            {
+                                <div class="dot"></div>
+                            }
+                        </div>
+                    </div>
+                }
+
+                @foreach (var tile in UnplayableTiles)
+                {
+                    <div class="domino-card unplayable">
+                        <div class="domino-half val-@tile.Top">
+                            @for (int i = 0; i < tile.Top; i++)
+                            {
+                                <div class="dot"></div>
+                            }
+                        </div>
+                        <div class="domino-half val-@tile.Bottom">
+                            @for (int i = 0; i < tile.Bottom; i++)
+                            {
+                                <div class="dot"></div>
+                            }
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+
+        <!-- Actions -->
+        <div style="margin-top: 20px; text-align: center;">
+            @if (PlayableTiles.Count == 0)
+            {
+                <button class="btn btn-warning" @onclick="PassTurn">Pass</button>
+            }
+        </div>
+    </div>
+
+    <!-- Modal for Side Selection -->
+    @if (showSideSelectionModal && selectedTile != null)
+    {
+        <div class="modal-overlay">
+            <div class="modal-content">
+                <h3>Select Placement Side</h3>
+                <p>Tile [@selectedTile.Top|@selectedTile.Bottom]</p>
+                <div style="display: flex; justify-content: center; gap: 20px; margin-top: 20px;">
+                    <button @onclick="() => PlayTile(PlacementSide.Left)">Left</button>
+                    <button @onclick="() => PlayTile(PlacementSide.Right)">Right</button>
+                    <button @onclick="CancelSelection" style="background-color: #e74c3c;">Cancel</button>
+                </div>
+            </div>
+        </div>
+    }
+
+    <!-- Modal for Round Ended -->
+    @if (showRoundEndedModal)
+    {
+        <div class="modal-overlay">
+            <div class="modal-content">
+                <h2>Round Ended</h2>
+                <h3>Winner: @roundWinner</h3>
+                <p>Result: @roundResultMsg</p>
+                <button @onclick="ContinueNextRound">Continue</button>
+            </div>
+        </div>
+    }
+}
+
+@code {
+    private bool isGameStarted = false;
+    private bool isGameOver = false;
+    private bool showSideSelectionModal = false;
+    private bool showRoundEndedModal = false;
+    
+    private IDominoTile? selectedTile;
+    private string roundWinner = "";
+    private string roundResultMsg = "";
+    private string gameWinner = "";
+
+    private IPlayer CurrentPlayer => Controller.DominoGameDto?.Players[Controller.DominoGameDto.CurrentPlayerIndex]!;
+    private List<IDominoTile> PlayableTiles = new();
+    private List<IDominoTile> UnplayableTiles = new();
+
+    protected override void OnInitialized()
+    {
+        Controller.RoundEnded += OnRoundEnded;
+        Controller.TurnCompleted += OnTurnCompleted;
+        Controller.GameOver += OnGameOver;
+    }
+
+    public void Dispose()
+    {
+        Controller.RoundEnded -= OnRoundEnded;
+        Controller.TurnCompleted -= OnTurnCompleted;
+        Controller.GameOver -= OnGameOver;
+    }
+
+    private void StartGame()
+    {
+        Controller.StartGame();
+        Controller.StartRound();
+        isGameStarted = true;
+        UpdateHand();
+    }
+
+    private void RestartGame()
+    {
+        isGameOver = false;
+        Controller.StartGame();
+        Controller.StartRound();
+        UpdateHand();
+    }
+
+    private void UpdateHand()
+    {
+        if (Controller.DominoGameDto != null && !isGameOver && !showRoundEndedModal)
+        {
+            PlayableTiles = Controller.GetPlayableTiles(CurrentPlayer);
+            UnplayableTiles = Controller.GetUnplayableTiles(CurrentPlayer);
+        }
+    }
+
+    private void SelectTile(IDominoTile tile)
+    {
+        var validSides = Controller.GetValidPlacements(tile);
+        
+        if (Controller.DominoGameDto.Board.Chain.Count == 0 && validSides.Count > 0)
+        {
+            PlayTile(tile, validSides[0]);
+        }
+        else if (validSides.Count == 1)
+        {
+            PlayTile(tile, validSides[0]);
+        }
+        else if (validSides.Count == 2)
+        {
+            selectedTile = tile;
+            showSideSelectionModal = true;
+        }
+    }
+
+    private void PlayTile(PlacementSide side)
+    {
+        if (selectedTile != null)
+        {
+            PlayTile(selectedTile, side);
+            showSideSelectionModal = false;
+            selectedTile = null;
+        }
+    }
+
+    private void PlayTile(IDominoTile tile, PlacementSide side)
+    {
+        Controller.MakeMove(CurrentPlayer, tile, side);
+        UpdateHand();
+    }
+
+    private void PassTurn()
+    {
+        Controller.Pass(CurrentPlayer);
+        UpdateHand();
+    }
+
+    private void CancelSelection()
+    {
+        showSideSelectionModal = false;
+        selectedTile = null;
+    }
+
+    private void ContinueNextRound()
+    {
+        showRoundEndedModal = false;
+        Controller.StartRound();
+        UpdateHand();
+        StateHasChanged();
+    }
+
+    private void OnTurnCompleted(object? sender, EventArgs e)
+    {
+        InvokeAsync(() =>
+        {
+            UpdateHand();
+            StateHasChanged();
+        });
+    }
+
+    private void OnRoundEnded(object? sender, GameEventArgs e)
+    {
+        InvokeAsync(() =>
+        {
+            roundWinner = e.Player.Name;
+            roundResultMsg = $"{e.Result} (+{e.ScoreChange} pts)";
+            showRoundEndedModal = true;
+            StateHasChanged();
+        });
+    }
+
+    private void OnGameOver(object? sender, GameEventArgs e)
+    {
+        InvokeAsync(() =>
+        {
+            gameWinner = e.Player.Name;
+            isGameOver = true;
+            showRoundEndedModal = false;
+            showSideSelectionModal = false;
+            StateHasChanged();
+        });
+    }
+}
