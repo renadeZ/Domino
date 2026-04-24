@@ -283,7 +283,7 @@ public class GameController
         if (_currentPlayerIndex == _players.Count - 1) 
         {
             _currentPlayerIndex = 0;
-            }
+        }
         else 
         {
             _currentPlayerIndex++;
@@ -312,11 +312,7 @@ public class GameController
     //DONE
     private bool MatchesSide(IDominoTile tile, int value)
     {
-        bool match = false;
-        if (tile.Top == value || tile.Bottom == value) 
-        {
-            match = true;
-        }
+        bool match = tile.Top == value || tile.Bottom == value;
         return match;
     }
     
@@ -662,7 +658,7 @@ public class GameController
         return newDto;
     }
     
-    public void OnTurnCompleted()
+    private void OnTurnCompleted()
     {
         //If stuck
         bool stuck = true;
@@ -685,13 +681,13 @@ public class GameController
         TurnCompleted?.Invoke(this, EventArgs.Empty);
     }
 
-    public void OnGameOver(IPlayer winner)
+    private void OnGameOver(IPlayer winner)
     {
         DominoGameDto = UpdateDto();
         GameOver?.Invoke(this, new GameEventArgs(winner, RoundResult.Win, _scores[winner], ""));
     }
 
-    public void OnRoundEnded(IPlayer winner, RoundResult result)
+    private void OnRoundEnded(IPlayer winner, RoundResult result)
     {
         int score = 0;
         string msg = "";
