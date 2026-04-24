@@ -74,9 +74,9 @@ public class DominoCli
     {
         ConsoleSetup();
         var currentPlayer = _gameController.DominoGameDto.Players[_gameController.DominoGameDto.CurrentPlayerIndex];
-        Console.WriteLine("╔════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╗");
-        Console.WriteLine("║                                                                                                                  DOMINO                                                                                                                ║");
-        Console.WriteLine("╚════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╝");
+        Console.WriteLine("╔══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╗");
+        Console.WriteLine("║                                                                                                             DOMINO                                                                                                           ║");
+        Console.WriteLine("╚══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╝");
         Console.WriteLine($"Current Round : {_gameController.DominoGameDto.RoundNumber}");
         Console.WriteLine($"Current Turn  : {currentPlayer.Name}\n");
         Console.WriteLine("Player list :");
@@ -286,7 +286,7 @@ public class DominoCli
 
             Console.ForegroundColor = ConsoleColor.Yellow;
             Console.WriteLine($"Round Winner : {e.Player.Name}");
-            Console.WriteLine($"Win By       : {e.Message.ToString()} (+{e.ScoreChange} point)");
+            Console.WriteLine($"Win By       : {e.Message} (+{e.ScoreChange} point)");
         }
         Console.WriteLine($"Player List  :");
         foreach (var player in _gameController.DominoGameDto.Scores)

@@ -10,5 +10,4 @@ public interface IGameDTO
     public List<IPlayer> Players { get; set; }
     public int CurrentPlayerIndex { get; set; }
     public int RoundNumber { get; set; }
-    public int PassCount { get; set; }
 }

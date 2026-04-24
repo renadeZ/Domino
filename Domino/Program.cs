@@ -17,6 +17,14 @@ IBoard board = new Board(new List<IDominoTile>(), 0, 0);
 //Deck
 List<IDominoTile> tiles = new List<IDominoTile>();
 IDeck deck = new Deck(tiles, tiles.Count(), 6);
+for (int i = 0; i < deck.MaxPipValue + 1; i++)
+{
+    for (int j = i; j < deck.MaxPipValue + 1; j++)
+    {
+        deck.Tiles.Add(new DominoTile(i, j));
+        deck.TotalTiles++;
+    }
+}
 
 //Game Rules
 IGameRules rules = new GameRules(

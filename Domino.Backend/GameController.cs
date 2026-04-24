@@ -17,26 +17,25 @@ public class GameController
 
     private int _currentPlayerIndex;
     private int _roundNumber;
-    private int _passCount;
 
     public IGameDTO DominoGameDto { get; private set; }
     public event EventHandler? TurnCompleted;
     public event EventHandler<GameEventArgs>? RoundEnded; 
     public event EventHandler<GameEventArgs>? GameOver;
 
+    //[TODO] Card diluar, saat reset harus dibalikin lagi (walawe)
     public GameController(List<IPlayer> players, IBoard board, IDeck deck, IGameRules rules)
     {
         _players = players;
         _board = board;
         _deck = deck;
         _rules = rules;
-
-
+        
         _playerHand = new Dictionary<IPlayer, List<IDominoTile>>();
         _scores = new Dictionary<IPlayer, int>();
     }
     
-    //DONE
+    
     public void StartGame()
     {
         //Setup skor
@@ -58,25 +57,10 @@ public class GameController
     public void StartRound()
     {
         _roundNumber++;
-        _passCount = 0;
         
         //Setup deck
-        if (_board.Chain.Count != 0)
-        {
-            _board.Chain.Clear();
-        }
-        _deck.Tiles.Clear();
-        _deck.TotalTiles = 0;
-            
-        for (int i = 0; i < _deck.MaxPipValue + 1; i++)
-        {
-            for (int j = i; j < _deck.MaxPipValue + 1; j++)
-            {
-                _deck.Tiles.Add(new DominoTile(i, j));
-                _deck.TotalTiles++;
-            }
-        }
-
+        ResetDeck();
+        
         //Setup hands
         foreach (IPlayer player in _players)
         {
@@ -85,7 +69,7 @@ public class GameController
         ShuffleAndDeal();
         
         //[TEST]
-        TestHand(4);
+        // TestHand(4);
 
         //Cek Instant Winner
         IPlayer? instantWinner = FindInstantWinner();
@@ -102,6 +86,36 @@ public class GameController
         DominoGameDto = UpdateDto();
     }
 
+    private bool ResetDeck()
+    {
+        bool isDone = false;
+        if (_deck.Tiles.Count != _deck.TotalTiles)
+        {
+            // Take from board
+            if (_board.Chain.Count != 0)
+            {
+                _deck.Tiles.AddRange(_board.Chain);
+                _board.Chain.Clear();
+
+                if (_board.Chain.Count == 0)
+                {
+                    _board.RightEnd = 0;
+                    _board.LeftEnd = 0;
+                }
+            }
+            // Take from player
+            foreach (IPlayer player in _players)
+            {
+                _deck.Tiles.AddRange(_playerHand[player]);
+                _playerHand[player].Clear();
+            }
+
+            isDone = true;
+        }
+
+        return isDone;
+    }
+    
     private void TestHand(int situation)
     {
         switch (situation)
@@ -276,6 +290,7 @@ public class GameController
         }
     }
     
+    //[TODO] return player
     private void NextTurn()
     {
         if (_currentPlayerIndex == _players.Count - 1) 
@@ -286,8 +301,6 @@ public class GameController
         {
             _currentPlayerIndex++;
         }
-        
-        //Bisa dipersingkat -> _currentPlayerIndex + 1 % _player.count;
     }
 
     public void Pass(IPlayer player)
@@ -295,7 +308,6 @@ public class GameController
         Debug.WriteLine($"{player.Name} passed");
         if (GetPlayableTiles(player).Count == 0)
         {
-            _passCount++;
             OnTurnCompleted();
         }
         
@@ -331,7 +343,6 @@ public class GameController
             {
                 _playerHand[player].Add(_deck.Tiles[_deck.Tiles.Count-1]);
                 _deck.Tiles.RemoveAt(_deck.Tiles.Count-1);
-                _deck.TotalTiles--;
             }
         }
     }
@@ -653,8 +664,8 @@ public class GameController
 
     private IGameDTO UpdateDto()
     {
-        GameDto? newDto = new GameDto(_board, _deck, _rules, _playerHand, _scores, _players, _currentPlayerIndex,
-            _roundNumber, _passCount);
+        GameDto newDto = new GameDto(_board, _deck, _rules, _playerHand, _scores, _players, _currentPlayerIndex,
+            _roundNumber);
         return newDto;
     }
     

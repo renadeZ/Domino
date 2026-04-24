@@ -10,11 +10,10 @@ public class GameDto : IGameDTO
     public List<IPlayer> Players { get; set; }
     public int CurrentPlayerIndex { get; set; }
     public int RoundNumber { get; set; }
-    public int PassCount { get; set; }
     public IPlayer winningPlayer { get; set; }
 
     public GameDto(IBoard board, IDeck deck, IGameRules rules, Dictionary<IPlayer, List<IDominoTile>> playerHands,
-        Dictionary<IPlayer, int> scores, List<IPlayer> players, int currentPlayerIndex, int roundNumber, int passCount)
+        Dictionary<IPlayer, int> scores, List<IPlayer> players, int currentPlayerIndex, int roundNumber)
     {
         Board = board;
         Deck = deck;
@@ -24,6 +23,5 @@ public class GameDto : IGameDTO
         Players = players;
         CurrentPlayerIndex = currentPlayerIndex;
         RoundNumber = roundNumber;
-        PassCount = passCount;
     }
 }
