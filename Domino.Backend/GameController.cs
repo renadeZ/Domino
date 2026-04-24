@@ -206,46 +206,47 @@ public class GameController
     
     public bool MakeMove(IPlayer player, IDominoTile tile, PlacementSide side)
     {
-        if (IsGameOver())
+        bool isValid = false;
+        if (!IsGameOver())
         {
-            return false;
-        }
+            bool isPlaced = false;
 
-        bool isPlaced = false;
-
-        if (_board.Chain.Count == 0)
-        {
-            PlaceTile(tile, side);
-            isPlaced = true;
-        }
-        else
-        {
-            int target = side == PlacementSide.Left ? _board.LeftEnd : _board.RightEnd;
-            if (tile.Top == target || tile.Bottom == target) 
+            if (_board.Chain.Count == 0)
             {
                 PlaceTile(tile, side);
                 isPlaced = true;
             }
-        }
-
-        
-        if (isPlaced)
-        {
-            _playerHand[player].Remove(tile);
-            if (_playerHand[player].Count == 0)
+            else
             {
-                if (tile.Top == 6 && tile.Bottom == 6)
-                    OnRoundEnded(player, RoundResult.WinBalak6);
-                else
-                    OnRoundEnded(player, RoundResult.Win);
-                return true;
+                int target = side == PlacementSide.Left ? _board.LeftEnd : _board.RightEnd;
+                if (tile.Top == target || tile.Bottom == target) 
+                {
+                    PlaceTile(tile, side);
+                    isPlaced = true;
+                }
             }
 
-            OnTurnCompleted();
-            return true;
+            
+            if (isPlaced)
+            {
+                _playerHand[player].Remove(tile);
+                if (_playerHand[player].Count == 0)
+                {
+                    if (tile.Top == 6 && tile.Bottom == 6)
+                        OnRoundEnded(player, RoundResult.WinBalak6);
+                    else
+                        OnRoundEnded(player, RoundResult.Win);
+                    isValid = true;
+                }
+                else
+                {
+                    OnTurnCompleted();
+                    isValid = true;
+                }
+            }
         }
 
-        return false;
+        return isValid;
     }
     private void PlaceTile(IDominoTile tile, PlacementSide side)
     {
