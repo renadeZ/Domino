@@ -85,7 +85,7 @@ public class GameController
         ShuffleAndDeal();
         
         //[TEST]
-        // TestHand(7);
+        TestHand(4);
 
         //Cek Instant Winner
         IPlayer? instantWinner = FindInstantWinner();
@@ -278,8 +278,6 @@ public class GameController
     
     private void NextTurn()
     {
-        
-        
         if (_currentPlayerIndex == _players.Count - 1) 
         {
             _currentPlayerIndex = 0;
@@ -288,6 +286,8 @@ public class GameController
         {
             _currentPlayerIndex++;
         }
+        
+        //Bisa dipersingkat -> _currentPlayerIndex + 1 % _player.count;
     }
 
     public void Pass(IPlayer player)
@@ -320,7 +320,7 @@ public class GameController
     private void ShuffleAndDeal()
     {
         //Shuffle
-        var tiles = _deck.Tiles.ToArray();
+        IDominoTile[] tiles = _deck.Tiles.ToArray();
         Random.Shared.Shuffle(tiles);
         _deck.Tiles = tiles.ToList();
         
@@ -585,8 +585,8 @@ public class GameController
                 }
                 else
                 {
-                    var currentSmallest = GetSmallestBalak(player);
-                    var winnerSmallest = GetSmallestBalak(winner);
+                    IDominoTile? currentSmallest = GetSmallestBalak(player);
+                    IDominoTile? winnerSmallest = GetSmallestBalak(winner);
                     if (currentSmallest != null && winnerSmallest != null && currentSmallest.Top < winnerSmallest.Top)
                     {
                         winner = player;
@@ -601,11 +601,11 @@ public class GameController
             bool isThereBalak0 = false;
             
             // Balak 0 Loser
-            foreach (var player in _players)
+            foreach (IPlayer player in _players)
             {
                 if (player != winner)
                 {
-                    var smallest = GetSmallestBalak(player);
+                    IDominoTile? smallest = GetSmallestBalak(player);
                     if (smallest != null && smallest.Top == 0)
                     {
                         _scores[player] += _rules.LoseBalak0Penalty;
@@ -653,7 +653,7 @@ public class GameController
 
     private IGameDTO UpdateDto()
     {
-        var newDto = new GameDto(_board, _deck, _rules, _playerHand, _scores, _players, _currentPlayerIndex,
+        GameDto? newDto = new GameDto(_board, _deck, _rules, _playerHand, _scores, _players, _currentPlayerIndex,
             _roundNumber, _passCount);
         return newDto;
     }
@@ -662,7 +662,7 @@ public class GameController
     {
         //If stuck
         bool stuck = true;
-        foreach (var player in _players)
+        foreach (IPlayer player in _players)
         {
             if (GetPlayableTiles(player).Count > 0)
             {
