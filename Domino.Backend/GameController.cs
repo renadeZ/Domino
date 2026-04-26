@@ -18,12 +18,10 @@ public class GameController
     private int _currentPlayerIndex;
     private int _roundNumber;
 
-    public IGameDTO DominoGameDto { get; private set; }
     public event EventHandler? TurnCompleted;
     public event EventHandler<GameEventArgs>? RoundEnded; 
     public event EventHandler<GameEventArgs>? GameOver;
 
-    //[TODO] Card diluar, saat reset harus dibalikin lagi (walawe)
     public GameController(List<IPlayer> players, IBoard board, IDeck deck, IGameRules rules)
     {
         _players = players;
@@ -36,12 +34,17 @@ public class GameController
     }
     
     
-    public void StartGame()
+    public bool StartGame()
     {
+        bool isStarted = false;
+        if (_players.Count > 1)
+        {
+            isStarted = true;
+        }
         //Setup skor
         foreach (IPlayer player in _players)
         {
-            _scores.Add(player, 0);
+            _scores[player] = 0;
         }
         
         //Mengatur round
@@ -50,12 +53,14 @@ public class GameController
         //Setup Hand
         foreach (IPlayer player in _players)
         {
-            _playerHand.Add(player, new List<IDominoTile>());
+            _playerHand[player] = new List<IDominoTile>();
         }
+        return isStarted;
     }
 
-    public void StartRound()
+    public bool StartRound()
     {
+        bool started = false;
         _roundNumber++;
         
         //Setup deck
@@ -67,15 +72,13 @@ public class GameController
             _playerHand[player].Clear();
         }
         ShuffleAndDeal();
-        
-        //[TEST]
-        // TestHand(4);
 
         //Cek Instant Winner
         IPlayer? instantWinner = FindInstantWinner();
-        if(instantWinner != null) 
+        if (instantWinner != null)
         {
             OnRoundEnded(instantWinner, RoundResult.InstantWin);
+            return true;
         }
         
         //Check Reshuffle
@@ -83,7 +86,9 @@ public class GameController
         
         //Mencari Pemain Pertama
         _currentPlayerIndex = _players.IndexOf(FindFirstPlayer(_roundNumber==1));
-        DominoGameDto = UpdateDto();
+
+        started = true;
+        return started;
     }
 
     private bool ResetDeck()
@@ -116,108 +121,7 @@ public class GameController
         return isDone;
     }
     
-    private void TestHand(int situation)
-    {
-        switch (situation)
-        {
-            case 1: //Normal Win : Run out card
-                _board.Chain.Add(new DominoTile(3, 4));
-                _board.LeftEnd = 3;
-                _board.RightEnd = 4;
 
-                _playerHand[_players[0]].Clear();
-                _playerHand[_players[0]].Add(new DominoTile(3, 3));
-                _playerHand[_players[0]].Add(new DominoTile(4, 4));
-        
-                _playerHand[_players[1]].Clear();
-                _playerHand[_players[1]].Add(new DominoTile(2, 2));
-                _playerHand[_players[1]].Add(new DominoTile(1, 1));
-                break;
-        
-            case 2: //End game with Balak 6
-                _board.Chain.Add(new DominoTile(6, 4));
-                _board.LeftEnd = 6;
-                _board.RightEnd = 4;
-                
-                _playerHand[_players[0]].Clear();
-                _playerHand[_players[0]].Add(new DominoTile(6, 6)); 
-                
-                _playerHand[_players[1]].Clear();
-                _playerHand[_players[1]].Add(new DominoTile(2, 2));
-                _playerHand[_players[1]].Add(new DominoTile(3, 3));
-                break;
-            
-            case 3: //Gaple least Pips
-                _board.Chain.Add(new DominoTile(3, 4));
-                _board.LeftEnd = 3;
-                _board.RightEnd = 4;
-
-                _playerHand[_players[0]].Clear();
-                _playerHand[_players[0]].Add(new DominoTile(1, 2));
-                _playerHand[_players[0]].Add(new DominoTile(1, 5));
-                
-                _playerHand[_players[1]].Clear();
-                _playerHand[_players[1]].Add(new DominoTile(5, 6));
-                _playerHand[_players[1]].Add(new DominoTile(1, 6));
-                break;
-            
-            case 4 : //Gaple win with Balak 0
-                _board.Chain.Add(new DominoTile(3, 4));
-                _board.LeftEnd = 3;
-                _board.RightEnd = 4;
-
-                _playerHand[_players[0]].Clear();
-                _playerHand[_players[0]].Add(new DominoTile(0, 0));
-                
-                _playerHand[_players[1]].Clear();
-                _playerHand[_players[1]].Add(new DominoTile(5, 6));
-                break;
-            
-            case 5: //Gaple lose with Balak 0 and least balak
-                _board.Chain.Add(new DominoTile(3, 4));
-                _board.LeftEnd = 3;
-                _board.RightEnd = 4;
-                
-                _playerHand[_players[0]].Clear();
-                _playerHand[_players[0]].Add(new DominoTile(1, 1));
-                
-                _playerHand[_players[1]].Clear();
-                _playerHand[_players[1]].Add(new DominoTile(0, 0));
-                _playerHand[_players[1]].Add(new DominoTile(2, 2));
-                break;
-            
-            case 6: //Smallest balak
-                _board.Chain.Add(new DominoTile(5, 5));
-                _board.LeftEnd = 5;
-                _board.RightEnd = 5;
-                
-                _playerHand[_players[0]].Clear();
-                _playerHand[_players[0]].Add(new DominoTile(1, 1)); 
-                _playerHand[_players[0]].Add(new DominoTile(2, 2)); 
-                
-                _playerHand[_players[1]].Clear();
-                _playerHand[_players[1]].Add(new DominoTile(3, 3)); 
-                _playerHand[_players[1]].Add(new DominoTile(4, 4)); 
-                break;
-
-            case 7: //Instant Win with 7 Balaks
-                
-                _playerHand[_players[0]].Clear();
-                _playerHand[_players[0]].Add(new DominoTile(0, 0)); 
-                _playerHand[_players[0]].Add(new DominoTile(1, 1)); 
-                _playerHand[_players[0]].Add(new DominoTile(2, 2)); 
-                _playerHand[_players[0]].Add(new DominoTile(3, 3)); 
-                _playerHand[_players[0]].Add(new DominoTile(4, 4)); 
-                _playerHand[_players[0]].Add(new DominoTile(5, 5)); 
-                _playerHand[_players[0]].Add(new DominoTile(6, 6)); 
-                
-                _playerHand[_players[1]].Clear();
-                _playerHand[_players[1]].Add(new DominoTile(3, 4)); 
-                _playerHand[_players[1]].Add(new DominoTile(4, 5)); 
-                break;
-        }
-    }
-    
     public bool MakeMove(IPlayer player, IDominoTile tile, PlacementSide side)
     {
         bool isValid = false;
@@ -290,8 +194,7 @@ public class GameController
         }
     }
     
-    //[TODO] return player
-    private void NextTurn()
+    private IPlayer NextTurn()
     {
         if (_currentPlayerIndex == _players.Count - 1) 
         {
@@ -301,6 +204,7 @@ public class GameController
         {
             _currentPlayerIndex++;
         }
+        return _players[_currentPlayerIndex];
     }
 
     public void Pass(IPlayer player)
@@ -394,21 +298,18 @@ public class GameController
         return validSides;
     }
 
-    //DONE
     private int GetPlayerTotalPips(IPlayer player)
     {
         int totalPips = _playerHand[player].Sum(tile => tile.Top + tile.Bottom);
         return totalPips;
     }
 
-    //DONE
     private int GetPlayerBalakCount(IPlayer player)
     {
         int totalBalak = _playerHand[player].Count(tile => tile.Top == tile.Bottom);
         return totalBalak;
     }
 
-    //DONE
     private IDominoTile? GetSmallestBalak(IPlayer player)
     {
         int minIndex = -1;
@@ -426,7 +327,6 @@ public class GameController
         return minIndex == -1 ? null : _playerHand[player][minIndex];
     }
 
-    //DONE
     private IDominoTile? GetHighestBalak(IPlayer player)
     {
         int maxIndex = -1;
@@ -520,9 +420,12 @@ public class GameController
                         counter++;
                 }
 
-                if (counter >= _rules.ReshuffleMinBalak) 
+                if (counter >= _rules.ReshuffleMinBalak)
+                {
                     OnRoundEnded(player, RoundResult.ReShuffle);
-                    
+                    return;
+                }
+                
             }
         }
     }
@@ -611,7 +514,7 @@ public class GameController
         {
             bool isThereBalak0 = false;
             
-            // Balak 0 Loser
+            // Balak 0 
             foreach (IPlayer player in _players)
             {
                 if (player != winner)
@@ -627,7 +530,7 @@ public class GameController
             }
             
             // Balak 0 Winner
-            if ( !isThereBalak0 )
+            if (!isThereBalak0)
             {
                 IDominoTile? smallestBalak = GetSmallestBalak(winner);
                 if (smallestBalak != null && smallestBalak.Top == 0)
@@ -662,11 +565,11 @@ public class GameController
         return isGameOver;
     }
 
-    private IGameDTO UpdateDto()
+    public IGameDTO UpdateDTO()
     {
-        GameDto newDto = new GameDto(_board, _deck, _rules, _playerHand, _scores, _players, _currentPlayerIndex,
+        GameDto dto = new GameDto(_board, _deck, _rules, _playerHand, _scores, _players, _currentPlayerIndex,
             _roundNumber);
-        return newDto;
+        return dto;
     }
     
     private void OnTurnCompleted()
@@ -688,13 +591,11 @@ public class GameController
         }
         Debug.WriteLine($"Turn Completed");
         NextTurn();
-        DominoGameDto = UpdateDto();
         TurnCompleted?.Invoke(this, EventArgs.Empty);
     }
 
     private void OnGameOver(IPlayer winner)
     {
-        DominoGameDto = UpdateDto();
         GameOver?.Invoke(this, new GameEventArgs(winner, RoundResult.Win, _scores[winner], ""));
     }
 
@@ -736,7 +637,6 @@ public class GameController
 
         _scores[winner] += score;
         
-        DominoGameDto = UpdateDto(); 
         RoundEnded?.Invoke(this, new GameEventArgs(winner, result, score, msg));
     }
 }
