@@ -32,6 +32,8 @@ builder.Services.AddSingleton<GameController>(provider =>
     return new GameController(players, board, deck, rules);
 });
 
+builder.Services.AddSingleton<Domino.API.Services.IGameService, Domino.API.Services.GameService>();
+
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment())

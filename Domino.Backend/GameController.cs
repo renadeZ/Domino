@@ -41,13 +41,28 @@ public class GameController
 
         foreach (IPlayer player in _players)
         {
-            _scores[player] = 0;
+            if (!_scores.ContainsKey(player))
+            {
+                _scores[player] = 0;
+            }
+            else
+            {
+                _scores[player] = 0;
+            }
+            
+            if (!_playerHand.ContainsKey(player))
+            {
+                _playerHand[player] = new List<IDominoTile>();
+            }
         }
+        
+        ResetDeck();
+
         _roundNumber = 0;
 
         foreach (IPlayer player in _players)
         {
-            _playerHand[player] = new List<IDominoTile>();
+            _playerHand[player].Clear();
         }
         return isStarted;
     }
@@ -100,8 +115,11 @@ public class GameController
             // Take from player
             foreach (IPlayer player in _players)
             {
-                _deck.Tiles.AddRange(_playerHand[player]);
-                _playerHand[player].Clear();
+                if (_playerHand.ContainsKey(player))
+                {
+                    _deck.Tiles.AddRange(_playerHand[player]);
+                    _playerHand[player].Clear();
+                }
             }
 
             isDone = true;
