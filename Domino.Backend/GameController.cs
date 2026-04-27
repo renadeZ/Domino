@@ -38,16 +38,13 @@ public class GameController
     public bool StartGame()
     {
         bool isStarted = _players.Count > 1;
-        //Setup skor
+
         foreach (IPlayer player in _players)
         {
             _scores[player] = 0;
         }
-        
-        //Mengatur round
         _roundNumber = 0;
-        
-        //Setup Hand
+
         foreach (IPlayer player in _players)
         {
             _playerHand[player] = new List<IDominoTile>();
@@ -59,29 +56,24 @@ public class GameController
     {
         bool started = false;
         _roundNumber++;
-        
-        //Setup deck
+
         ResetDeck();
-        
-        //Setup hands
+
         foreach (IPlayer player in _players)
         {
             _playerHand[player].Clear();
         }
         ShuffleAndDeal();
 
-        //Cek Instant Winner
         IPlayer? instantWinner = FindInstantWinner();
         if (instantWinner != null)
         {
             OnRoundEnded(instantWinner, RoundResult.InstantWin);
             return true;
         }
-        
-        //Check Reshuffle
+
         CheckReShuffle();
         
-        //Mencari Pemain Pertama
         _currentPlayerIndex = _players.IndexOf(FindFirstPlayer(_roundNumber==1));
 
         started = true;
@@ -218,8 +210,7 @@ public class GameController
         _scores[player] += _rules.PenaltyPoints;
         OnTurnCompleted();
     }
-
-    //DONE
+    
     private bool MatchesSide(IDominoTile tile, int value)
     {
         bool match = tile.Top == value || tile.Bottom == value;
@@ -342,7 +333,6 @@ public class GameController
     {
         if (isFirstRound)
         {
-            //Balak Tertinggi
             IPlayer? selectedPlayer = null;
             foreach (IPlayer player in _players)
             {
@@ -369,7 +359,6 @@ public class GameController
                 return selectedPlayer;
             }
             
-            //Pips tertinggi
             int HighestPip(IPlayer player)
             {
                 int highest = 0;
@@ -450,7 +439,6 @@ public class GameController
     {
         IPlayer? winner = null;
         
-        //Titik tersedikit
         List<int> playerTotalPips = new List<int>();
         foreach (IPlayer player in _players)
         {
@@ -464,10 +452,8 @@ public class GameController
             winner = _players[playerTotalPips.FindIndex(p => p == minPip)];
         }
         
-        //Tie Breaker
         if (winner == null)
         {
-            //A. Balak tersedikit
             List<int> playerTotalBalak = new List<int>();
             foreach (IPlayer player in _players)
             {
@@ -484,7 +470,6 @@ public class GameController
 
         if (winner == null)
         {
-            //B. Balak terkecil 
             foreach (IPlayer player in _players)
             {
                 if (winner == null)
@@ -503,12 +488,11 @@ public class GameController
             }
         }
         
-        // Check Balak 0 Winner and Balak 0 Loser
+
         if (winner != null)
         {
             bool isThereBalak0 = false;
             
-            // Balak 0 
             foreach (IPlayer player in _players)
             {
                 if (player != winner)
@@ -522,8 +506,7 @@ public class GameController
                     }
                 }
             }
-            
-            // Balak 0 Winner
+
             if (!isThereBalak0)
             {
                 IDominoTile? smallestBalak = GetSmallestBalak(winner);
