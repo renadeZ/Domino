@@ -206,7 +206,6 @@ public class GameController
 
     public void Pass(IPlayer player)
     {
-        Debug.WriteLine($"{player.Name} passed");
         if (GetPlayableTiles(player).Count == 0)
         {
             OnTurnCompleted();
@@ -216,9 +215,7 @@ public class GameController
 
     public void ApplyTimeOut(IPlayer player)
     {
-        Debug.WriteLine($"{player.Name} timed out");
         _scores[player] += _rules.PenaltyPoints;
-        
         OnTurnCompleted();
     }
 
@@ -582,11 +579,9 @@ public class GameController
         }
         if(stuck)
         {
-            Debug.WriteLine("Stuck Unplayable");
             HandleGaple();
             return;
         }
-        Debug.WriteLine($"Turn Completed");
         NextTurn();
         TurnCompleted?.Invoke(this, EventArgs.Empty);
     }

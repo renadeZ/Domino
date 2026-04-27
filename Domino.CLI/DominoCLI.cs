@@ -245,14 +245,16 @@ public class DominoCli
             
             int timeLeft = _dto.Rules.TurnTimeLimit - (int)timer.Elapsed.TotalSeconds;
             if (timeLeft <= 5)
+            {
                 Console.ForegroundColor = ConsoleColor.Red;
+            }
             else
+            {
                 Console.ForegroundColor = ConsoleColor.Yellow;
-
-            // Bikin progress bar sederhana
+            }
+            
             string bar = new string('█', timeLeft) + new string('-', _dto.Rules.TurnTimeLimit - timeLeft);
-
-
+            
             Console.SetCursorPosition(0, Console.CursorTop);
             Console.Write($"Time Limit : [{bar}] {timeLeft}s remaining   \r");
             Thread.Sleep(50);
