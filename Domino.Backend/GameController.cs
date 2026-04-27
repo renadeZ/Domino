@@ -1,7 +1,8 @@
 ﻿using System.Diagnostics;
 using Domino.Backend.Models;
-using Domino.Backend.Models.Enums;
-using Domino.Backend.Models.EventArgs;
+using Domino.Backend.Interfaces;
+using Domino.Backend.Enums;
+using Domino.Backend.EventArguments;
 
 namespace Domino.Backend;
 
@@ -36,11 +37,7 @@ public class GameController
     
     public bool StartGame()
     {
-        bool isStarted = false;
-        if (_players.Count > 1)
-        {
-            isStarted = true;
-        }
+        bool isStarted = _players.Count > 1;
         //Setup skor
         foreach (IPlayer player in _players)
         {

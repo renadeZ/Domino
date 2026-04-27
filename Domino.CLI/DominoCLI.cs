@@ -1,9 +1,9 @@
 ﻿using System.Diagnostics;
 using System.Text;
 using Domino.Backend;
-using Domino.Backend.Models;
-using Domino.Backend.Models.Enums;
-using Domino.Backend.Models.EventArgs;
+using Domino.Backend.Interfaces;
+using Domino.Backend.Enums;
+using Domino.Backend.EventArguments;
 
 namespace Domino.CLI;
 public class DominoCli
@@ -12,7 +12,7 @@ public class DominoCli
     private bool _isRoundActive;
     private bool _isFirstTurn;
     private bool _hasTimedOut;
-    private IGameDTO? _dto;
+    private IGameDTO _dto;
     
     public DominoCli(GameController gameController)
     {
@@ -31,7 +31,7 @@ public class DominoCli
             _gameController.TurnCompleted += OnTurnCompleted;
             _gameController.GameOver += OnGameOver;
             
-            _gameController.StartGame();
+            DrawHome();
 
             while (!_gameController.IsGameOver())
             {
@@ -104,7 +104,7 @@ public class DominoCli
 
     private void DrawBoardCard()
     {
-        Console.ForegroundColor = ConsoleColor.Yellow;
+        Console.ForegroundColor = ConsoleColor.Cyan;
         StringBuilder[] line = new StringBuilder[5];
         for (int i = 0; i < line.Length; i++)
         {
@@ -136,7 +136,7 @@ public class DominoCli
             foreach(var str in line)
                 Console.WriteLine(str.ToString());
         }
-        Debug.WriteLine(_dto.Board.Chain.ToString());
+        Console.ForegroundColor = ConsoleColor.Yellow;
     }
 
     private void DrawPlayerCard(List<IDominoTile> playerHand, bool isPlayable)
@@ -338,4 +338,78 @@ public class DominoCli
         }
     }
 
+    private void DrawBanner()
+    {
+        Console.ForegroundColor = ConsoleColor.Yellow;
+
+        Console.WriteLine(@"
+             ██████╗  ██████╗ ███╗   ███╗██╗███╗   ██╗██████╗ 
+             ██╔══██╗██╔═══██╗████╗ ████║██║████╗  ██║██╔══██╗
+             ██║  ██║██║   ██║██╔████╔██║██║██╔██╗ ██║██║  ██║
+             ██║  ██║██║   ██║██║╚██╔╝██║██║██║╚██╗██║██║  ██║
+             ██████╔╝╚██████╔╝██║ ╚═╝ ██║██║██║ ╚████║╚██████╔╝
+             ╚═════╝  ╚═════╝ ╚═╝     ╚═╝╚═╝╚═╝  ╚═══╝ ╚═════╝ 
+        ");
+    }
+
+    private void DrawHome()
+    {
+        ConsoleSetup();
+        DrawBanner();
+        Console.ForegroundColor = ConsoleColor.Yellow;
+        Console.WriteLine("\n\n Welcome to Domino Game\n");
+        Console.WriteLine("[1] Start Game");
+        Console.WriteLine("[2] Game Rules");
+        Console.WriteLine("[3] Exit Game");
+        
+        ConsoleKeyInfo keyInfo = Console.ReadKey(true);
+        switch (keyInfo.KeyChar)
+        {
+            case '1' :
+                _gameController.StartGame();
+                break;
+            case '2' :
+                DrawRule();
+                break;
+            case '3' :
+                return;
+        }
+    }
+
+    private void DrawRule()
+    {
+        ConsoleSetup();
+        Console.WriteLine(@"
+First Player in First Round :
+1. Player with balak 6
+2. Player with highest balak
+3. Player with highest pips in a tile
+
+Re-Shuffle :
+1. Instant winning (a player has total 7 balak in hand)
+2. Not fair hands (a player has total 5 or 6 balak in hand)
+
+Mechanism :
+- Pass only can be used when a player can't play their tile
+- Penalty applied to the player that doesn't move for 30 seconds
+
+Gaple (Stuck) Rules :
+- Lowest pips in a tile
+If total pips equal :
+1. Least balak in hand
+2. Lowest balak in hand
+
+Point :
+- Normal win                : +1
+- Closing with balak 6 win  : +2
+- Win with balak 0 in hand  : +20
+- Lose with balak 0 in hand : -40
+
+First player that have 151+ point wins the game
+");
+        Console.WriteLine("Press ENTER to continue...");
+        while (Console.ReadKey(true).Key != ConsoleKey.Enter) { }
+        DrawHome();
+    }
+    
 }

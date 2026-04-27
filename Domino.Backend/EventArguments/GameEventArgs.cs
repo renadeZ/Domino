@@ -1,6 +1,7 @@
-﻿using Domino.Backend.Models.Enums;
+﻿using Domino.Backend.Enums;
+using Domino.Backend.Interfaces;
 
-namespace Domino.Backend.Models.EventArgs;
+namespace Domino.Backend.EventArguments;
 
 public class GameEventArgs : System.EventArgs
 {

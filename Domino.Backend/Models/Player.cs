@@ -1,4 +1,5 @@
-﻿namespace Domino.Backend.Models;
+﻿using Domino.Backend.Interfaces;
+namespace Domino.Backend.Models;
 
 public class Player : IPlayer
 {

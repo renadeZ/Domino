@@ -1,4 +1,4 @@
-﻿namespace Domino.Backend.Models.Enums;
+﻿namespace Domino.Backend.Enums;
 
 public enum RoundResult
 {

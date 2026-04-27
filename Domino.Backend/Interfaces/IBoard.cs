@@ -1,4 +1,4 @@
-﻿namespace Domino.Backend.Models;
+﻿namespace Domino.Backend.Interfaces;
 
 public interface IBoard
 {
