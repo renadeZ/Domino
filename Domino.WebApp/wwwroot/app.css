@@ -1,5 +1,9 @@
 html, body {
     font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    background-image: url('images/wooden_bg.jpg');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
 }
 
 a, .btn-link {

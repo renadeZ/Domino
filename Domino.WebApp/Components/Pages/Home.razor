@@ -3,18 +3,44 @@
 @using System.Net.Http.Json
 @using System.Threading
 @inject HttpClient Http
+@inject IJSRuntime JS
 
 <PageTitle>Domino Master</PageTitle>
 
+<style>
+    .tile-hover {
+        transition: transform 0.2s ease, box-shadow 0.2s ease !important;
+    }
+    .tile-hover:hover {
+        transform: translateY(-8px) !important;
+        box-shadow: 0 10px 20px rgba(0,0,0,0.3) !important;
+    }
+    
+    .choice-btn {
+        transition: transform 0.2s ease, box-shadow 0.2s ease !important;
+    }
+    .choice-btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 15px rgba(0,0,0,0.3) !important;
+        filter: brightness(1.1);
+    }
+</style>
+
 @if (gameState != null)
 {
-    <h1 style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; font-weight: bold; color: #333; text-align: center; margin-bottom: 30px;">Domino Game</h1>
+    <h1 style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; font-weight: bold; color: white; text-align: center; margin-bottom: 30px;">Domino Master</h1>
 }
 
 @if (isWaitingForNextPlayer && gameState != null && !gameState.IsRoundOver && !gameState.IsGameOver)
 {
     <div style="position: fixed; inset: 0; background: rgba(0,0,0,0.85); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 9999;">
         <h1 style="color: white; font-size: 3rem; margin-bottom: 20px;">@gameState.CurrentPlayer Turn</h1>
+        @if (previousPlayerTimedOut)
+        {
+            <div style="background: #dc3545; color: white; padding: 10px 20px; border-radius: 10px; margin-bottom: 20px; font-size: 1.2rem;">
+                The previous player was skipped due to timeout.
+            </div>
+        }
         <p style="color: white; font-size: 1.2rem; margin-bottom: 40px;">Press "Show My Card" Button to Start Your Turn</p>
         <button @onclick="ShowMyCard" class="btn btn-primary btn-lg" style="padding: 15px 30px; font-size: 1.5rem;">Show My Card</button>
     </div>
@@ -22,32 +48,42 @@
 
 @if (gameState == null)
 {
-    <div style="max-width: 800px; margin: 40px auto; background: white; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); padding: 50px; text-align: center; border-top: 10px solid #007bff;">
-        <img src="/images/tiles/balak_6.svg" style="width: 80px; margin-bottom: 20px; filter: drop-shadow(0 5px 10px rgba(0,0,0,0.2));" alt="Domino Logo" />
-        <h1 style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; font-size: 4rem; font-weight: 900; color: #2c3e50; margin-bottom: 10px; letter-spacing: -1px;">Domino Master</h1>
-        <p style="font-size: 1.3rem; color: #7f8c8d; margin-bottom: 40px; font-weight: 500;">The classic tile-based game of strategy and luck.</p>
+    <div style="max-width: 800px; margin: 10px auto; background: white; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); padding: 25px 30px; text-align: center; border-top: 10px solid #007bff;">
+        <img src="/images/tiles/balak_6.svg" style="width: 60px; margin-bottom: 10px; filter: drop-shadow(0 5px 10px rgba(0,0,0,0.2));" alt="Domino Logo" />
+        <h1 style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; font-size: 2.5rem; font-weight: 900; color: #2c3e50; margin-bottom: 5px; letter-spacing: -1px;">Domino Master</h1>
+        <p style="font-size: 1.1rem; color: #7f8c8d; margin-bottom: 20px; font-weight: 500;">The classic tile-based game of strategy and luck.</p>
 
-        <button @onclick="StartGame" class="btn btn-primary btn-lg" style="padding: 15px 60px; font-size: 1.8rem; border-radius: 50px; font-weight: bold; background: linear-gradient(135deg, #007bff, #0056b3); border: none; box-shadow: 0 8px 20px rgba(0,123,255,0.4); transition: transform 0.2s, box-shadow 0.2s; cursor: pointer;">
+        <button @onclick="StartGame" class="btn btn-primary btn-lg" style="padding: 10px 40px; font-size: 1.5rem; border-radius: 50px; font-weight: bold; background: linear-gradient(135deg, #007bff, #0056b3); border: none; box-shadow: 0 8px 20px rgba(0,123,255,0.4); transition: transform 0.2s, box-shadow 0.2s; cursor: pointer;">
             ▶ Play Now
         </button>
 
-        <div style="margin-top: 60px; text-align: left; background: #f8f9fa; padding: 40px; border-radius: 15px; border-left: 6px solid #28a745;">
-            <h2 style="color: #2c3e50; margin-top: 0; font-size: 2rem; margin-bottom: 20px; display: flex; align-items: center; gap: 10px;">
+        <div style="margin-top: 25px; text-align: left; background: #f8f9fa; padding: 20px; border-radius: 15px; border-left: 6px solid #28a745;">
+            <h2 style="color: #2c3e50; margin-top: 0; font-size: 1.5rem; margin-bottom: 10px; display: flex; align-items: center; gap: 10px;">
                 <span>📜</span> How to Play
             </h2>
-            <ul style="font-size: 1.15rem; color: #444; line-height: 1.8; padding-left: 20px;">
-                <li style="margin-bottom: 10px;"><strong>Objective:</strong> Be the first player to reach the required points by winning rounds.</li>
-                <li style="margin-bottom: 10px;"><strong>Gameplay:</strong> Match the pips (dots) on one end of a tile from your hand with the pips on the open ends of the board.</li>
-                <li style="margin-bottom: 10px;"><strong>Passing:</strong> If you cannot make a valid move, you must <b>Pass</b> your turn.</li>
-                <li style="margin-bottom: 10px;"><strong>Winning a Round:</strong>
-                    <ul style="margin-top: 5px; list-style-type: circle;">
-                        <li><b>Domino:</b> A player plays all their tiles and empties their hand.</li>
-                        <li><b>Gaple (Block):</b> No player can make a move. The player with the lowest remaining pips in their hand wins.</li>
+            <ul style="font-size: 1rem; color: #444; line-height: 1.4; padding-left: 20px; margin-bottom: 0;">
+                <li style="margin-bottom: 5px;"><strong>Card Clash (Gaple/Block):</strong> Activates automatically when the board is locked (all players Pass). Winner is determined by:
+                    <ul style="margin-top: 2px; list-style-type: circle;">
+                        <li><b>Lowest pips:</b> The player with the lowest total pips in hand wins.</li>
+                        <li><b>Tie breaker:</b> If total pips are equal:
+                            <ul style="margin-top: 2px; list-style-type: square;">
+                                <li>A player with a double tile (balak) loses against a player without a double tile.</li>
+                                <li>If both have double tiles, the player with the smaller double tile wins (e.g., double 1 wins against double 3).</li>
+                            </ul>
+                        </li>
                     </ul>
                 </li>
-                <li><strong>Scoring:</strong> The winner scores points equal to the total number of pips left in all opponents' hands.</li>
+                <li><strong>Scoring System:</strong>
+                    <ul style="margin-top: 2px; list-style-type: circle;">
+                        <li><b>Normal Win:</b> +1 point (cards run out normally)</li>
+                        <li><b>Double 6 Win:</b> +2 points (closing the game with a 6-6 tile)</li>
+                        <li><b>Double 0 Win:</b> +20 points (winning a card clash / Gaple with a remaining Double 0)</li>
+                        <li><b>Double 0 Loss:</b> -40 points (losing a card clash / Gaple with a remaining Double 0 in hand)</li>
+                    </ul>
+                </li>
             </ul>
         </div>
+        <p style="margin-top: 15px; margin-bottom: 0; font-size: 0.9rem; color: #999;">Created by Zidane Naufal</p>
     </div>
 }
 else
@@ -57,11 +93,31 @@ else
         <div class="board" style="display: flex; gap: 5px; flex-wrap: wrap; margin-bottom: 40px; padding: 40px; background: #2E8B57; border: 8px solid #1c5c38; min-height: 250px; align-items: center; justify-content: center; border-radius: 20px; box-shadow: inset 0 0 30px rgba(0,0,0,0.6);">
             @if (gameState.Board.Chain.Count == 0)
             {
-                <span style="color: rgba(255,255,255,0.5); font-size: 1.5rem; font-style: italic;">Empty Board</span>
+                @if (hoveredTile != null)
+                {
+                    <img src="@GetTileImage(hoveredTile)" style="@(GetTileStyle(hoveredTile, true)) opacity: 0.6; filter: drop-shadow(0 0 10px white);" alt="Ghost" />
+                }
+                else
+                {
+                    <span style="color: rgba(255,255,255,0.5); font-size: 1.5rem; font-style: italic;">Empty Board</span>
+                }
             }
-            @foreach (var tile in gameState.Board.Chain)
+            else
             {
-                <img src="@GetTileImage(tile)" style="@GetTileStyle(tile, true)" alt="[@tile.Top | @tile.Bottom]" />
+                @if (hoveredTile != null && CanPlaceLeft(hoveredTile))
+                {
+                    <img src="@GetTileImage(hoveredTile)" style="@(GetTileStyle(hoveredTile, true)) opacity: 0.6; filter: drop-shadow(0 0 10px white);" alt="Ghost Left" />
+                }
+                
+                @foreach (var tile in gameState.Board.Chain)
+                {
+                    <img src="@GetTileImage(tile)" style="@GetTileStyle(tile, true)" alt="[@tile.Top | @tile.Bottom]" />
+                }
+
+                @if (hoveredTile != null && CanPlaceRight(hoveredTile))
+                {
+                    <img src="@GetTileImage(hoveredTile)" style="@(GetTileStyle(hoveredTile, true)) opacity: 0.6; filter: drop-shadow(0 0 10px white);" alt="Ghost Right" />
+                }
             }
         </div>
 
@@ -95,8 +151,10 @@ else
                                         bool isSelected = IsSelected(tile);
                                         string bg = isSelected ? "#cce5ff" : "transparent";
                                         string border = isSelected ? "2px solid #007bff" : "2px solid transparent";
-                                        <div style="background: @bg; cursor: pointer; padding: 5px; border-radius: 8px; border: @border; transition: all 0.2s ease; transform: @(isSelected ? "translateY(-5px)" : "none");"
-                                             @onclick="() => OnTileClick(tile)">
+                                        <div class="tile-hover" style="background: @bg; cursor: pointer; padding: 5px; border-radius: 8px; border: @border; transform: @(isSelected ? "translateY(-5px)" : "none");"
+                                             @onclick="() => OnTileClick(tile)"
+                                             @onmouseenter="() => hoveredTile = tile"
+                                             @onmouseleave="() => hoveredTile = null">
                                             <img src="@GetTileImage(tile)" style="@GetTileStyle(tile, false)" alt="[@tile.Top | @tile.Bottom]" />
                                         </div>
                                     }
@@ -171,13 +229,13 @@ else
             <div style="display: flex; justify-content: center; gap: 10px;">
                 @if (CanPlaceLeft(selectedTile))
                 {
-                    <button @onclick="() => MakeMove(0)" class="btn btn-success btn-lg" style="flex: 1; padding: 10px;">Kiri</button>
+                    <button @onclick="() => MakeMove(0)" class="btn btn-success btn-lg choice-btn" style="flex: 1; padding: 10px;">Kiri</button>
                 }
                 @if (CanPlaceRight(selectedTile))
                 {
-                    <button @onclick="() => MakeMove(1)" class="btn btn-success btn-lg" style="flex: 1; padding: 10px;">Kanan</button>
+                    <button @onclick="() => MakeMove(1)" class="btn btn-success btn-lg choice-btn" style="flex: 1; padding: 10px;">Kanan</button>
                 }
-                <button @onclick="() => selectedTile = null" class="btn btn-outline-danger btn-lg" style="flex: 1; padding: 10px;">Batal</button>
+                <button @onclick="CancelSelection" class="btn btn-outline-danger btn-lg choice-btn" style="flex: 1; padding: 10px;">Batal</button>
             </div>
         </div>
     }
@@ -186,16 +244,25 @@ else
 @code {
     private GameStateResponse? gameState;
     private TileResponse? selectedTile;
+    private TileResponse? hoveredTile;
     private bool isWaitingForNextPlayer = false;
     private string lastPlayer = "";
     private int lastRoundNumber = -1;
+    private bool previousPlayerTimedOut = false;
 
     private int timeLeft = 30;
     private CancellationTokenSource? cts;
 
+    private void CancelSelection()
+    {
+        selectedTile = null;
+        hoveredTile = null;
+    }
+
     private void ShowMyCard()
     {
         isWaitingForNextPlayer = false;
+        previousPlayerTimedOut = false;
         StartTimer();
     }
 
@@ -243,12 +310,14 @@ else
         {
             var request = new PassRequest { PlayerName = gameState.CurrentPlayer };
             await Http.PostAsJsonAsync("/api/game/timeout", request);
+            previousPlayerTimedOut = true;
             await LoadState();
         }
     }
 
     private async Task StartGame()
     {
+        await JS.InvokeVoidAsync("playBgm", "/sounds/bgm.mp3");
         await Http.PostAsync("/api/game/start", null);
         await Http.PostAsync("/api/game/round/start", null); 
         await LoadState();
@@ -256,6 +325,7 @@ else
 
     private async Task StartRound()
     {
+        await JS.InvokeVoidAsync("playBgm", "/sounds/bgm.mp3");
         await Http.PostAsync("/api/game/round/start", null);
         await LoadState();
     }
@@ -310,7 +380,7 @@ else
 
     private string GetTileStyle(TileResponse tile, bool onBoard)
     {
-        string style = "width: 40px; border-radius: 5px; box-shadow: 1px 1px 3px rgba(0,0,0,0.3); transition: transform 0.3s;";
+        string style = "width: 40px; border-radius: 5px; box-shadow: 1px 1px 3px rgba(0,0,0,0.3);";
         if (onBoard)
         {
             if (tile.Top == tile.Bottom)
@@ -347,25 +417,25 @@ else
 
     private async Task OnTileClick(TileResponse tile)
     {
+        await JS.InvokeVoidAsync("playSound", "/sounds/click.mp3");
+        hoveredTile = null;
+
         bool canLeft = CanPlaceLeft(tile);
         bool canRight = CanPlaceRight(tile);
 
         if (gameState != null && gameState.Board.Chain.Count == 0)
         {
-            selectedTile = tile;
-            await MakeMove(0);
+            await ExecuteMove(tile, 0);
             return;
         }
 
         if (canLeft && !canRight)
         {
-            selectedTile = tile;
-            await MakeMove(0);
+            await ExecuteMove(tile, 0);
         }
         else if (canRight && !canLeft)
         {
-            selectedTile = tile;
-            await MakeMove(1);
+            await ExecuteMove(tile, 1);
         }
         else if (canLeft && canRight)
         {
@@ -373,21 +443,32 @@ else
         }
     }
 
-    private async Task MakeMove(int side)
+    private async Task ExecuteMove(TileResponse tile, int side)
     {
-        if (selectedTile != null && gameState != null)
+        if (gameState != null)
         {
             StopTimer();
             var request = new MoveRequest
             {
                 PlayerName = gameState.CurrentPlayer,
-                TileTop = selectedTile.Top,
-                TileBottom = selectedTile.Bottom,
+                TileTop = tile.Top,
+                TileBottom = tile.Bottom,
                 Side = side
             };
             await Http.PostAsJsonAsync("/api/game/move", request);
             selectedTile = null;
+            hoveredTile = null;
+            previousPlayerTimedOut = false;
             await LoadState();
+        }
+    }
+
+    private async Task MakeMove(int side)
+    {
+        await JS.InvokeVoidAsync("playSound", "/sounds/click.mp3");
+        if (selectedTile != null)
+        {
+            await ExecuteMove(selectedTile, side);
         }
     }
 
@@ -398,6 +479,7 @@ else
             StopTimer();
             var request = new PassRequest { PlayerName = gameState.CurrentPlayer };
             await Http.PostAsJsonAsync("/api/game/pass", request);
+            previousPlayerTimedOut = false;
             await LoadState();
         }
     }

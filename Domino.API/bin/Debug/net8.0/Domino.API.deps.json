@@ -76,10 +76,7 @@
       },
       "Domino.Backend/1.0.0": {
         "runtime": {
-          "Domino.Backend.dll": {
-            "assemblyVersion": "1.0.0",
-            "fileVersion": "1.0.0.0"
-          }
+          "Domino.Backend.dll": {}
         }
       }
     }

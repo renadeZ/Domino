@@ -15,6 +15,29 @@
 <body>
 <Routes/>
 <script src="_framework/blazor.web.js"></script>
+<script>
+    var bgmAudio = null;
+
+    window.playSound = function (url) {
+        var audio = new Audio(url);
+        audio.play().catch(function(error) {
+            console.log("Audio play failed: " + error);
+        });
+    }
+
+    window.playBgm = function (url) {
+        if (!bgmAudio) {
+            bgmAudio = new Audio(url);
+            bgmAudio.loop = true;
+            bgmAudio.volume = 0.5;
+        }
+        if (bgmAudio.paused) {
+            bgmAudio.play().catch(function(error) {
+                console.log("BGM play failed: " + error);
+            });
+        }
+    }
+</script>
 </body>
 
 </html>
