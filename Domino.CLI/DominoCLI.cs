@@ -72,7 +72,7 @@ public class DominoCli
 
     private void RefreshDto()
     {
-        _dto = _gameController.UpdateDTO();
+        _dto = _gameController.UpdateDto();
     }
 
 

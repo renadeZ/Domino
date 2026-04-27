@@ -562,7 +562,7 @@ public class GameController
         return isGameOver;
     }
 
-    public IGameDTO UpdateDTO()
+    public IGameDTO UpdateDto()
     {
         GameDto dto = new GameDto(_board, _deck, _rules, _playerHand, _scores, _players, _currentPlayerIndex,
             _roundNumber);
