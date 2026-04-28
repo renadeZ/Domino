@@ -119,13 +119,6 @@ public class GameController_MakeMove
 	[Test]
 	public void MakeMove_PlaceRight_ReturnsTrue()
 	{
-		IDominoTile boardTile= new DominoTile(1, 2);
-		IBoard board = new DesiredBoard(new List<IDominoTile>(), 5, 6){
-			DesiredChain = new List<IDominoTile>{ boardTile }
-		};
-		
-	
-
 		IGameDTO dto = _gameController.UpdateDto();
 		IPlayer player = _players[0];
 
@@ -135,13 +128,14 @@ public class GameController_MakeMove
 		dto.Board.LeftEnd = boardTile.Top;
 		dto.Board.RightEnd = boardTile.Bottom;
 
-		IDominoTile matchingRight = new DominoTile(6, 2);
+		IDominoTile matchingRight = new DominoTile(2, 6);
 		dto.PlayerHands[player].Clear();
 		dto.PlayerHands[player].Add(matchingRight);
 
 		bool result = _gameController.MakeMove(player, matchingRight, PlacementSide.Right);
 
 		Assert.IsTrue(result, "MakeMove should return true for a valid placement on the right side");
+		Assert.AreEqual(2, dto.Board.RightEnd, "Board RightEnd should be updated to 2 after flipping the tile");
 	}
 
 	[Test]
@@ -250,12 +244,10 @@ public class GameController_MakeMove
 		dto.PlayerHands[p0].Clear();
 		dto.PlayerHands[p1].Clear();
 
-		// Make total pips equal but balak values differ so tie-breaker picks smallest balak
-		dto.PlayerHands[p0].Add(new DominoTile(4, 4)); // balak 4
-		dto.PlayerHands[p0].Add(new DominoTile(1, 1)); // balak 1 -> p0 total = 10
-		// p1 has balak 0 and balak 5 -> p1 total = 10
-		dto.PlayerHands[p1].Add(new DominoTile(0, 0)); // balak 0
-		dto.PlayerHands[p1].Add(new DominoTile(5, 5)); // balak 5
+		dto.PlayerHands[p0].Add(new DominoTile(4, 4)); 
+		dto.PlayerHands[p0].Add(new DominoTile(1, 1)); 
+		dto.PlayerHands[p1].Add(new DominoTile(0, 0)); 
+		dto.PlayerHands[p1].Add(new DominoTile(5, 5)); 
 
 		bool raised = false;
 		GameEventArgs? args = null;
@@ -286,11 +278,9 @@ public class GameController_MakeMove
 		dto.PlayerHands[p0].Clear();
 		dto.PlayerHands[p1].Clear();
 
-		// p0 wins by lowest pips
-		dto.PlayerHands[p0].Add(new DominoTile(1, 2)); // total 3
-		// p1 has a balak 0 which should trigger penalty
+		dto.PlayerHands[p0].Add(new DominoTile(1, 2)); 
 		dto.PlayerHands[p1].Add(new DominoTile(0, 0));
-		dto.PlayerHands[p1].Add(new DominoTile(3, 3)); // total 6
+		dto.PlayerHands[p1].Add(new DominoTile(3, 3)); 
 
 		bool raised = false;
 		GameEventArgs? args = null;

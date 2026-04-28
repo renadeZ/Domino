@@ -1,20 +1,20 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\Bootcamp-Zidane\\Documents\\Domino\\DominoApp\\Domino.API\\Domino.API.csproj": {}
+    "/home/repjed/Documents/Domino/Domino/Domino.API/Domino.API.csproj": {}
   },
   "projects": {
-    "C:\\Users\\Bootcamp-Zidane\\Documents\\Domino\\DominoApp\\Domino.API\\Domino.API.csproj": {
+    "/home/repjed/Documents/Domino/Domino/Domino.API/Domino.API.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\Bootcamp-Zidane\\Documents\\Domino\\DominoApp\\Domino.API\\Domino.API.csproj",
+        "projectUniqueName": "/home/repjed/Documents/Domino/Domino/Domino.API/Domino.API.csproj",
         "projectName": "Domino.API",
-        "projectPath": "C:\\Users\\Bootcamp-Zidane\\Documents\\Domino\\DominoApp\\Domino.API\\Domino.API.csproj",
-        "packagesPath": "C:\\Users\\Bootcamp-Zidane\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\Bootcamp-Zidane\\Documents\\Domino\\DominoApp\\Domino.API\\obj\\",
+        "projectPath": "/home/repjed/Documents/Domino/Domino/Domino.API/Domino.API.csproj",
+        "packagesPath": "/home/repjed/.nuget/packages/",
+        "outputPath": "/home/repjed/Documents/Domino/Domino/Domino.API/obj/",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "C:\\Users\\Bootcamp-Zidane\\AppData\\Roaming\\NuGet\\NuGet.Config"
+          "/home/repjed/.nuget/NuGet/NuGet.Config"
         ],
         "originalTargetFrameworks": [
           "net8.0"
@@ -26,8 +26,8 @@
           "net8.0": {
             "targetAlias": "net8.0",
             "projectReferences": {
-              "C:\\Users\\Bootcamp-Zidane\\Documents\\Domino\\DominoApp\\Domino.Backend\\Domino.Backend.csproj": {
-                "projectPath": "C:\\Users\\Bootcamp-Zidane\\Documents\\Domino\\DominoApp\\Domino.Backend\\Domino.Backend.csproj"
+              "/home/repjed/Documents/Domino/Domino/Domino.Backend/Domino.Backend.csproj": {
+                "projectPath": "/home/repjed/Documents/Domino/Domino/Domino.Backend/Domino.Backend.csproj"
               }
             }
           }
@@ -36,11 +36,6 @@
           "warnAsError": [
             "NU1605"
           ]
-        },
-        "restoreAuditProperties": {
-          "enableAudit": "true",
-          "auditLevel": "low",
-          "auditMode": "direct"
         }
       },
       "frameworks": {
@@ -67,6 +62,12 @@
           ],
           "assetTargetFallback": true,
           "warn": true,
+          "downloadDependencies": [
+            {
+              "name": "Microsoft.AspNetCore.App.Ref",
+              "version": "[8.0.25, 8.0.25]"
+            }
+          ],
           "frameworkReferences": {
             "Microsoft.AspNetCore.App": {
               "privateAssets": "none"
@@ -75,21 +76,21 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.419/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "/usr/share/dotnet/sdk/8.0.125/PortableRuntimeIdentifierGraph.json"
         }
       }
     },
-    "C:\\Users\\Bootcamp-Zidane\\Documents\\Domino\\DominoApp\\Domino.Backend\\Domino.Backend.csproj": {
+    "/home/repjed/Documents/Domino/Domino/Domino.Backend/Domino.Backend.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\Bootcamp-Zidane\\Documents\\Domino\\DominoApp\\Domino.Backend\\Domino.Backend.csproj",
+        "projectUniqueName": "/home/repjed/Documents/Domino/Domino/Domino.Backend/Domino.Backend.csproj",
         "projectName": "Domino.Backend",
-        "projectPath": "C:\\Users\\Bootcamp-Zidane\\Documents\\Domino\\DominoApp\\Domino.Backend\\Domino.Backend.csproj",
-        "packagesPath": "C:\\Users\\Bootcamp-Zidane\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\Bootcamp-Zidane\\Documents\\Domino\\DominoApp\\Domino.Backend\\obj\\",
+        "projectPath": "/home/repjed/Documents/Domino/Domino/Domino.Backend/Domino.Backend.csproj",
+        "packagesPath": "/home/repjed/.nuget/packages/",
+        "outputPath": "/home/repjed/Documents/Domino/Domino/Domino.Backend/obj/",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "C:\\Users\\Bootcamp-Zidane\\AppData\\Roaming\\NuGet\\NuGet.Config"
+          "/home/repjed/.nuget/NuGet/NuGet.Config"
         ],
         "originalTargetFrameworks": [
           "net8.0"
@@ -107,11 +108,6 @@
           "warnAsError": [
             "NU1605"
           ]
-        },
-        "restoreAuditProperties": {
-          "enableAudit": "true",
-          "auditLevel": "low",
-          "auditMode": "direct"
         }
       },
       "frameworks": {
@@ -128,12 +124,18 @@
           ],
           "assetTargetFallback": true,
           "warn": true,
+          "downloadDependencies": [
+            {
+              "name": "Microsoft.AspNetCore.App.Ref",
+              "version": "[8.0.25, 8.0.25]"
+            }
+          ],
           "frameworkReferences": {
             "Microsoft.NETCore.App": {
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.419/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "/usr/share/dotnet/sdk/8.0.125/PortableRuntimeIdentifierGraph.json"
         }
       }
     }
