@@ -11,7 +11,6 @@ public class GameDto : IGameDTO
     public List<IPlayer> Players { get; set; }
     public int CurrentPlayerIndex { get; set; }
     public int RoundNumber { get; set; }
-    public IPlayer winningPlayer { get; set; }
 
     public GameDto(IBoard board, IDeck deck, IGameRules rules, Dictionary<IPlayer, List<IDominoTile>> playerHands,
         Dictionary<IPlayer, int> scores, List<IPlayer> players, int currentPlayerIndex, int roundNumber)

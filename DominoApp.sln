@@ -10,6 +10,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Domino.API", "Domino.API\Do
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Domino.WebApp", "Domino.WebApp\Domino.WebApp.csproj", "{B9A0EC04-AA01-4634-BBC9-C86786F26EFB}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Domino.Tests", "Domino.Tests\Domino.Tests.csproj", "{102C5D5C-EB87-44B8-AB3F-2A2027F836F1}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -36,5 +38,9 @@ Global
 		{B9A0EC04-AA01-4634-BBC9-C86786F26EFB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B9A0EC04-AA01-4634-BBC9-C86786F26EFB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B9A0EC04-AA01-4634-BBC9-C86786F26EFB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{102C5D5C-EB87-44B8-AB3F-2A2027F836F1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{102C5D5C-EB87-44B8-AB3F-2A2027F836F1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{102C5D5C-EB87-44B8-AB3F-2A2027F836F1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{102C5D5C-EB87-44B8-AB3F-2A2027F836F1}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

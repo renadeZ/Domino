@@ -84,7 +84,8 @@ public class GameController
         if (instantWinner != null)
         {
             OnRoundEnded(instantWinner, RoundResult.InstantWin);
-            return true;
+            started = true;
+            return started;
         }
 
         CheckReShuffle();

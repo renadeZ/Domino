@@ -498,19 +498,19 @@
     ]
   },
   "packageFolders": {
-    "/home/repjed/.nuget/packages/": {}
+    "C:\\Users\\Bootcamp-Zidane\\.nuget\\packages\\": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "/home/repjed/Documents/Domino/Domino/Domino.API/Domino.API.csproj",
+      "projectUniqueName": "C:\\Users\\Bootcamp-Zidane\\Documents\\Domino\\DominoApp\\Domino.API\\Domino.API.csproj",
       "projectName": "Domino.API",
-      "projectPath": "/home/repjed/Documents/Domino/Domino/Domino.API/Domino.API.csproj",
-      "packagesPath": "/home/repjed/.nuget/packages/",
-      "outputPath": "/home/repjed/Documents/Domino/Domino/Domino.API/obj/",
+      "projectPath": "C:\\Users\\Bootcamp-Zidane\\Documents\\Domino\\DominoApp\\Domino.API\\Domino.API.csproj",
+      "packagesPath": "C:\\Users\\Bootcamp-Zidane\\.nuget\\packages\\",
+      "outputPath": "C:\\Users\\Bootcamp-Zidane\\Documents\\Domino\\DominoApp\\Domino.API\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
-        "/home/repjed/.nuget/NuGet/NuGet.Config"
+        "C:\\Users\\Bootcamp-Zidane\\AppData\\Roaming\\NuGet\\NuGet.Config"
       ],
       "originalTargetFrameworks": [
         "net8.0"
@@ -522,8 +522,8 @@
         "net8.0": {
           "targetAlias": "net8.0",
           "projectReferences": {
-            "/home/repjed/Documents/Domino/Domino/Domino.Backend/Domino.Backend.csproj": {
-              "projectPath": "/home/repjed/Documents/Domino/Domino/Domino.Backend/Domino.Backend.csproj"
+            "C:\\Users\\Bootcamp-Zidane\\Documents\\Domino\\DominoApp\\Domino.Backend\\Domino.Backend.csproj": {
+              "projectPath": "C:\\Users\\Bootcamp-Zidane\\Documents\\Domino\\DominoApp\\Domino.Backend\\Domino.Backend.csproj"
             }
           }
         }
@@ -532,6 +532,11 @@
         "warnAsError": [
           "NU1605"
         ]
+      },
+      "restoreAuditProperties": {
+        "enableAudit": "true",
+        "auditLevel": "low",
+        "auditMode": "direct"
       }
     },
     "frameworks": {
@@ -558,12 +563,6 @@
         ],
         "assetTargetFallback": true,
         "warn": true,
-        "downloadDependencies": [
-          {
-            "name": "Microsoft.AspNetCore.App.Ref",
-            "version": "[8.0.25, 8.0.25]"
-          }
-        ],
         "frameworkReferences": {
           "Microsoft.AspNetCore.App": {
             "privateAssets": "none"
@@ -572,7 +571,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "/usr/share/dotnet/sdk/8.0.125/PortableRuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.419/PortableRuntimeIdentifierGraph.json"
       }
     }
   }
