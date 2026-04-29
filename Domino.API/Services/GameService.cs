@@ -19,13 +19,13 @@ public interface IGameService
 public class GameService : IGameService
 {
     private readonly ILogger<GameService> _logger;
-    private readonly Domino.Backend.GameController _gameController;
+    private readonly Domino.Backend.Game _gameController;
     private string _lastWinner = "";
     private string _lastMessage = "";
     private int _lastScore = 0;
     private bool _isRoundOver = false;
 
-    public GameService(ILogger<GameService> logger, Domino.Backend.GameController gameController)
+    public GameService(ILogger<GameService> logger, Domino.Backend.Game gameController)
     {
         _logger = logger;
         _gameController = gameController;

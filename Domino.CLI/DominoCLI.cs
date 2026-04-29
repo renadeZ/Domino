@@ -8,13 +8,13 @@ using Domino.Backend.EventArguments;
 namespace Domino.CLI;
 public class DominoCli
 {
-    private GameController _gameController;
+    private Game _gameController;
     private bool _isRoundActive;
     private bool _isFirstTurn;
     private bool _hasTimedOut;
     private IGameDTO _dto;
     
-    public DominoCli(GameController gameController)
+    public DominoCli(Game gameController)
     {
         _gameController = gameController ?? throw new ArgumentNullException(nameof(gameController));
         Console.CursorVisible = false;
