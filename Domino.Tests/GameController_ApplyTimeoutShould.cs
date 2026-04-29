@@ -74,7 +74,7 @@ public class GameController_ApplyTimeoutShould
 	public void ApplyTimeOut_WithUnknownPlayer_ThrowsKeyNotFoundException()
 	{
 		var unknown = new Player("Unknown");
-		Assert.Throws<System.Collections.Generic.KeyNotFoundException>(() => _gameController.ApplyTimeOut(unknown));
+		Assert.Throws<KeyNotFoundException>(() => _gameController.ApplyTimeOut(unknown));
 	}
 
 	[Test]
