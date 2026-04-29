@@ -1,7 +1,7 @@
+// using Microsoft.Extensions.Logging;
 using Domino.Backend.Enums;
 using Domino.API.DTOs;
-using System.Linq;
-using System.Collections.Generic;
+using Domino.Backend.Interfaces;
 
 namespace Domino.API.Services;
 
@@ -18,14 +18,16 @@ public interface IGameService
 
 public class GameService : IGameService
 {
+    private readonly ILogger<GameService> _logger;
     private readonly Domino.Backend.GameController _gameController;
     private string _lastWinner = "";
     private string _lastMessage = "";
     private int _lastScore = 0;
     private bool _isRoundOver = false;
 
-    public GameService(Domino.Backend.GameController gameController)
+    public GameService(ILogger<GameService> logger, Domino.Backend.GameController gameController)
     {
+        _logger = logger;
         _gameController = gameController;
         _gameController.RoundEnded += (sender, args) => 
         {
@@ -33,11 +35,14 @@ public class GameService : IGameService
             _lastMessage = args.Message;
             _lastScore = args.ScoreChange;
             _isRoundOver = true;
+            _logger.LogInformation("Round ended. Winner: {Winner}, Message: {Message}, Score Change: {ScoreChange}", _lastWinner, _lastMessage, _lastScore);
         };
     }
 
     public ServiceResult<string> StartGame()
     {
+        _logger.LogInformation("Attempting to start game in GameService.");
+        
         bool started = _gameController.StartGame();
         if (started) 
         {
@@ -45,22 +50,28 @@ public class GameService : IGameService
             return ServiceResult<string>.Success("Game started successfully.");
         }
         return ServiceResult<string>.Failure("Could not start game. Ensure at least 2 players.");
+    
     }
 
     public ServiceResult<string> StartRound()
     {
+        _logger.LogInformation("Attempting to start round in GameService.");
+
         bool started = _gameController.StartRound();
         if (started) 
         {
             _isRoundOver = false;
             return ServiceResult<string>.Success("Round started successfully.");
         }
-        return ServiceResult<string>.Failure("Could not start round.");
+        return ServiceResult<string>.Failure("Failed start round.");
+        
     }
 
     public ServiceResult<GameStateResponse> GetState()
     {
-        var dto = _gameController.UpdateDto();
+        _logger.LogInformation("Attempting to get game state in GameService.");
+        
+        IGameDTO dto = _gameController.UpdateDto();
         
         var response = new GameStateResponse
         {
@@ -92,12 +103,19 @@ public class GameService : IGameService
 
     public ServiceResult<string> MakeMove(string playerName, int tileTop, int tileBottom, PlacementSide side)
     {
+        _logger.LogInformation("Game Service :Attempting to make move for {PlayerName} with tile {Top}-{Bottom} on side {Side}.", playerName, tileTop, tileBottom, side);
+
         var dto = _gameController.UpdateDto();
         var player = dto.Players.FirstOrDefault(p => p.Name.Equals(playerName, System.StringComparison.OrdinalIgnoreCase));
-        if (player == null) return ServiceResult<string>.Failure($"Player '{playerName}' not found.");
+        if (player == null)
+        {
+            _logger.LogWarning("Player '{PlayerName}' not found.", playerName);
+            return ServiceResult<string>.Failure($"Player '{playerName}' not found.");
+        }
 
         if (dto.Players[dto.CurrentPlayerIndex] != player)
         {
+            _logger.LogWarning("It is not {PlayerName}'s turn. Current turn: {CurrentPlayer}", player.Name, dto.Players[dto.CurrentPlayerIndex].Name);
             return ServiceResult<string>.Failure($"It is not {player.Name}'s turn. Current turn: {dto.Players[dto.CurrentPlayerIndex].Name}");
         }
 
@@ -105,27 +123,40 @@ public class GameService : IGameService
             (t.Top == tileTop && t.Bottom == tileBottom) || 
             (t.Top == tileBottom && t.Bottom == tileTop));
             
-        if (tile == null) return ServiceResult<string>.Failure("Tile not found in player's hand.");
+        if (tile == null)
+        {
+            _logger.LogWarning("Tile {Top}-{Bottom} not found in {PlayerName}'s hand.", tileTop, tileBottom, player.Name);
+            return ServiceResult<string>.Failure("Tile not found in player's hand.");
+        }
 
         var validSides = _gameController.GetValidPlacements(tile);
         if (!validSides.Contains(side))
         {
+            _logger.LogWarning("Invalid placement side {Side} for tile {Top}-{Bottom}. Valid sides: {ValidSides}", side, tileTop, tileBottom, string.Join(", ", validSides));
             return ServiceResult<string>.Failure($"Invalid placement side. Valid sides for this tile: {string.Join(", ", validSides)}");
         }
 
         bool result = _gameController.MakeMove(player, tile, side);
         if (result)
         {
+            _logger.LogInformation("Move successful for {PlayerName}.", playerName);
             return ServiceResult<string>.Success("Move successful.");
         }
+        
+        _logger.LogWarning("Invalid move for {PlayerName}.", playerName);
         return ServiceResult<string>.Failure("Invalid move.");
     }
 
     public ServiceResult<string> Pass(string playerName)
     {
+        _logger.LogInformation("GameService : Attempting to pass for {PlayerName}.", playerName);
+
         var dto = _gameController.UpdateDto();
         var player = dto.Players.FirstOrDefault(p => p.Name.Equals(playerName, System.StringComparison.OrdinalIgnoreCase));
-        if (player == null) return ServiceResult<string>.Failure($"Player '{playerName}' not found.");
+        if (player == null)
+        {
+            return ServiceResult<string>.Failure($"Player '{playerName}' not found.");
+        }
 
         if (dto.Players[dto.CurrentPlayerIndex] != player)
         {
@@ -135,18 +166,23 @@ public class GameService : IGameService
         var playable = _gameController.GetPlayableTiles(player);
         if (playable.Any())
         {
-            return ServiceResult<string>.Failure("Cannot pass. You have playable tiles.");
+            return ServiceResult<string>.Failure($"{player.Name} cannot pass. You have playable tiles.");
         }
 
         _gameController.Pass(player);
-        return ServiceResult<string>.Success("Turn passed.");
+        return ServiceResult<string>.Success($"Turn passed for {player.Name}.");
     }
 
     public ServiceResult<string> TimeOut(string playerName)
     {
+        _logger.LogInformation("GameService : Attempting timeout for {PlayerName}.", playerName);
+
         var dto = _gameController.UpdateDto();
         var player = dto.Players.FirstOrDefault(p => p.Name.Equals(playerName, System.StringComparison.OrdinalIgnoreCase));
-        if (player == null) return ServiceResult<string>.Failure($"Player '{playerName}' not found.");
+        if (player == null)
+        {
+            return ServiceResult<string>.Failure($"Player '{playerName}' not found.");
+        }
 
         if (dto.Players[dto.CurrentPlayerIndex] != player)
         {
@@ -155,16 +191,23 @@ public class GameService : IGameService
 
         _gameController.ApplyTimeOut(player);
         return ServiceResult<string>.Success("Time out applied.");
+
     }
 
     public ServiceResult<List<TileResponse>> GetPlayableTiles(string playerName)
     {
+        _logger.LogInformation("Attempting to get playable tiles for {PlayerName}.", playerName);
+
         var dto = _gameController.UpdateDto();
         var player = dto.Players.FirstOrDefault(p => p.Name.Equals(playerName, System.StringComparison.OrdinalIgnoreCase));
-        if (player == null) return ServiceResult<List<TileResponse>>.Failure($"Player '{playerName}' not found.");
+        if (player == null)
+        {
+            return ServiceResult<List<TileResponse>>.Failure($"Player '{playerName}' not found.");
+        }
 
         var playable = _gameController.GetPlayableTiles(player);
         var result = playable.Select(t => new TileResponse { Top = t.Top, Bottom = t.Bottom }).ToList();
+        
         return ServiceResult<List<TileResponse>>.Success(result);
     }
 }
