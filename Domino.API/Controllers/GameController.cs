@@ -36,7 +36,7 @@ public class GameController : ControllerBase
             }
             else
             {
-                _logger.LogWarning("Failed to start game: {ErrorMessage}", result.ErrorMessage);
+                _logger.LogWarning("Game Service : {ErrorMessage}", result.ErrorMessage);
                 return BadRequest(new { Message = result.ErrorMessage });
             }
         }

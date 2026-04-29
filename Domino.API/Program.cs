@@ -11,7 +11,7 @@ Log.Logger = new LoggerConfiguration()
     .MinimumLevel.Override("Microsoft.AspNetCore", Serilog.Events.LogEventLevel.Warning)
     // Console sink with structured output - great for development
     .WriteTo.Console(outputTemplate: 
-        "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz}|{Level:u3}[{SourceContext}]" +
+        "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz}|{Level:u3}|[{SourceContext}]" +
         "{Message:lj} {Properties:j}{NewLine}{Exception}")
     
     // File sink with JSON format - perfect for log aggregation tools
