@@ -21,7 +21,7 @@ Log.Logger = new LoggerConfiguration()
                        "{Message:lj} {Properties:j}{NewLine}{Exception}")
     
     // File sink with JSON format for structured data analysis
-    .WriteTo.File(new JsonFormatter(), "logs/application-json-.log",
+    .WriteTo.File(new JsonFormatter(), "logs/application-json-.json",
         rollingInterval: RollingInterval.Day)
     
     // Enrich logs with additional context information

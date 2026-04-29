@@ -58,12 +58,12 @@ public class GameController : ControllerBase
             ServiceResult<string> result = _gameService.StartRound();
             if (result.IsSuccess)
             {
-                _logger.LogInformation("Round started successfully.");
+                _logger.LogInformation("Game Service : {Message}", result.Data);
                 return Ok(new { Message = result.Data });
             }
             else
             {
-                _logger.LogWarning("Failed to start round: {ErrorMessage}", result.ErrorMessage);
+                _logger.LogWarning("Game Service : {ErrorMessage}", result.ErrorMessage);
                 return BadRequest(new { Message = result.ErrorMessage });
             }
         }
@@ -84,12 +84,12 @@ public class GameController : ControllerBase
             ServiceResult<GameStateResponse> result = _gameService.GetState();
             if (result.IsSuccess)
             {
-                _logger.LogInformation("Game state retrieved successfully.");
+                _logger.LogInformation("Game Service : {Message}", result.Data);
                 return Ok(result.Data);
             }
             else
             {
-                _logger.LogWarning("Failed to retrieve game state: {ErrorMessage}", result.ErrorMessage);
+                _logger.LogWarning("Game Service : {ErrorMessage}", result.ErrorMessage);
                 return BadRequest(new { Message = result.ErrorMessage });
             }
         }
@@ -112,12 +112,12 @@ public class GameController : ControllerBase
             ServiceResult<string> result = _gameService.MakeMove(request.PlayerName, request.TileTop, request.TileBottom, request.Side);
             if (result.IsSuccess)
             {
-                _logger.LogInformation("Move made successfully for player {PlayerName}.", request.PlayerName);
+                _logger.LogInformation("Game Service : {Message}", result.Data);
                 return Ok(new { Message = result.Data });
             }
             else
             {
-                _logger.LogWarning("Failed to make move for player {PlayerName}: {ErrorMessage}", request.PlayerName, result.ErrorMessage);
+                _logger.LogWarning("Game Service : {ErrorMessage}", result.ErrorMessage);
                 return BadRequest(new { Message = result.ErrorMessage });
             }
         }
@@ -138,12 +138,12 @@ public class GameController : ControllerBase
             ServiceResult<string> result = _gameService.Pass(request.PlayerName);
             if (result.IsSuccess)
             {
-                _logger.LogInformation("Player {PlayerName} passed successfully.", request.PlayerName);
+                _logger.LogInformation("Game Service : {Message}", result.Data);
                 return Ok(new { Message = result.Data });
             }
             else
             {
-                _logger.LogWarning("Failed to pass for player {PlayerName}: {ErrorMessage}", request.PlayerName, result.ErrorMessage);
+                _logger.LogWarning("Game Service : {ErrorMessage}", result.ErrorMessage);
                 return BadRequest(new { Message = result.ErrorMessage });
             }
         }
@@ -164,12 +164,12 @@ public class GameController : ControllerBase
             ServiceResult<string> result = _gameService.TimeOut(request.PlayerName);
             if (result.IsSuccess)
             {
-                _logger.LogInformation("Timeout applied successfully for player {PlayerName}.", request.PlayerName);
+                _logger.LogInformation("Game Service : {Message}", result.Data);
                 return Ok(new { Message = result.Data });
             }
             else
             {
-                _logger.LogWarning("Failed to apply timeout for player {PlayerName}: {ErrorMessage}", request.PlayerName, result.ErrorMessage);
+                _logger.LogWarning("Game Service : {ErrorMessage}", result.ErrorMessage);
                 return BadRequest(new { Message = result.ErrorMessage });
             }
         }
@@ -190,12 +190,12 @@ public class GameController : ControllerBase
             ServiceResult<List<TileResponse>> result = _gameService.GetPlayableTiles(playerName);
             if (result.IsSuccess)
             {
-                _logger.LogInformation("Playable tiles retrieved successfully for player {PlayerName}.", playerName);
+                _logger.LogInformation("Game Service : {Message}", result.Data);
                 return Ok(result.Data);
             }
             else
             {
-                _logger.LogWarning("Failed to retrieve playable tiles for player {PlayerName}: {ErrorMessage}", playerName, result.ErrorMessage);
+                _logger.LogWarning("Game Service : {ErrorMessage}", result.ErrorMessage);
                 return BadRequest(new { Message = result.ErrorMessage });
             }
         }
