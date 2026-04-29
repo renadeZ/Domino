@@ -11,7 +11,7 @@ Log.Logger = new LoggerConfiguration()
     .MinimumLevel.Override("Microsoft.AspNetCore", Serilog.Events.LogEventLevel.Warning)
     // Console sink with structured output - great for development
     .WriteTo.Console(outputTemplate: 
-        "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz}|{Level:u3}[{SourceContext}]" +
+        "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz}|{Level:u3}|[{SourceContext}]" +
         "{Message:lj} {Properties:j}{NewLine}{Exception}")
     
     // File sink with JSON format - perfect for log aggregation tools
@@ -43,7 +43,7 @@ try
     builder.Services.AddEndpointsApiExplorer();
     builder.Services.AddSwaggerGen();
 
-    builder.Services.AddSingleton<GameController>(provider =>
+    builder.Services.AddSingleton<Game>(provider =>
     {
         IPlayer player1 = new Player("Player 1");
         IPlayer player2 = new Player("Player 2");
@@ -64,7 +64,7 @@ try
 
         IGameRules rules = new GameRules(151, 30, -1, 1, 2, 20, -40, 7, 7, 5);
         
-        return new GameController(players, board, deck, rules);
+        return new Game(players, board, deck, rules);
     });
 
     builder.Services.AddSingleton<Domino.API.Services.IGameService, Domino.API.Services.GameService>();

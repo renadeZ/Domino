@@ -6,7 +6,7 @@ using Domino.Backend.EventArguments;
 
 namespace Domino.Backend;
 
-public class GameController
+public class Game
 {
     private IBoard _board;
     private IDeck _deck;
@@ -23,7 +23,7 @@ public class GameController
     public event EventHandler<GameEventArgs>? RoundEnded; 
     public event EventHandler<GameEventArgs>? GameOver;
 
-    public GameController(List<IPlayer> players, IBoard board, IDeck deck, IGameRules rules)
+    public Game(List<IPlayer> players, IBoard board, IDeck deck, IGameRules rules)
     {
         _players = players;
         _board = board;

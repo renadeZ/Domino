@@ -44,7 +44,7 @@ IGameRules rules = new GameRules(
 
 
 //Game Controller
-GameController gameController = new GameController(players, board, deck, rules);
+Game gameController = new Game(players, board, deck, rules);
 
 //Start Game UI
 DominoCli cli = new DominoCli(gameController);
